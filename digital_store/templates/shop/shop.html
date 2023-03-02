@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %} Страница магазина {% endblock title %}
+{% block content %}
+  <main>
+    <section class="py-5 text-center container">
+      <div class="row py-lg-5">
+        <div class="col-lg-6 col-md-8 mx-auto">
+          <h1 class="fw-light">Страница магазина ...</h1>
+          <p>
+            <a href="#" class="btn btn-primary my-2">Профиль продавца</a>
+            <a href="#" class="btn btn-secondary my-2">Посмотреть отзывы</a>
+            <p>Средняя оценка: 4/5⭐</p>
+          </p>
+        </div>
+      </div>
+    </section>
+    <div class="album py-5 bg-light">
+      <section class="py-5 text-center container">
+        <h2>Товары продавца</h2>
+      </section>
+      <div class="container">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+          {% include 'includes/card.html' %}
+        </div>
+      </div>
+    </div>
+  </main>
+{% endblock content %}
