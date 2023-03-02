@@ -1,0 +1,1 @@
+# django_digital_store
