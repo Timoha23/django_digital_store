@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %} Регистрация {% endblock title %}
+{% block content %}
+  <div class="row justify-content-center">
+    <div class='register'>
+      <div class="col-md-8 p-5" style="margin:auto">
+        <div class="card">
+          {% if user.is_authenticated %}
+          <div class="card-header">
+            Вы уже зарегистрированы
+          </div>
+          <div class="card-body">
+            <p style="text-align: center;">
+              Вы уже зарегистрированы. Выйдите из аккаунта для регистрации нового.
+            </p>
+            <div style="width: 10%; margin: auto;">
+              <a href="{% url 'users:logout' %}">
+                <button class="btn btn-dark">
+                  Выйти
+                </button>
+              </a>
+            </div>
+          </div>
+        {% else %}
+          <div class="card-header">
+            Зарегистрироваться
+          </div>
+          <div class="card-body">
+            {% if form.errors %}
+              {% for field in form %}
+                {% for error in field.errors %}            
+                  <div class="alert alert-danger">
+                    {{ error|escape }}
+                  </div>
+                {% endfor %}
+              {% endfor %}
+              {% for error in form.non_field_errors %}
+                <div class="alert alert-danger">
+                  {{ error|escape }}
+                </div>
+              {% endfor %}
+            {% endif %}
+
+              <form method="post" action="{% url 'users:signup' %}">
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="form-group row my-3 p-3">
+                  <label for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                    {% if field.field.required %}
+                      <span class="required text-danger">*</span>
+                    {% endif %}
+                  </label>    
+                  {{ field }} 
+                  {% if field.help_text %}
+                    <small id="{{ field.id_for_label }}-help" class="form-text text-muted">
+                      {{ field.help_text|safe }}
+                    </small>
+                  {% endif %}
+                </div>
+                {% endfor %}
+                <div class="col-md-6 offset-md-4">
+                  <button type="submit" class="btn btn-dark">
+                    Зарегистрироваться
+                  </button>
+                </div>
+              </form>
+            </div> <!-- card body -->
+            {% endif %}
+          </div> <!-- card -->
+        </div> <!-- col -->
+      </div>
+  </div> <!-- row -->
+{% endblock %}
