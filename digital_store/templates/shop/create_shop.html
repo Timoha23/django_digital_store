@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}
+{% if edit_shop %}
+  Редактировать пост
+{% else %}
+  Создать магазин
+{% endif %}
+{% endblock %}
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-8 p-5">
+      <div class="card">
+          <div class="card-header"> 
+            {% if edit_shop %}      
+              Редактировать пост 
+            {% else %}
+              Новый магазин
+            {% endif %}            
+          </div>
+        <div class="card-body">
+          {% if edit_shop %}   
+            <form method="post" enctype="multipart/form-data" action="{% url 'shop:edit_shop' shop_id %}">
+          {% else %}
+            <form method="post" enctype="multipart/form-data" action="{% url 'shop:create_shop' %}">
+          {% endif %}
+          {% csrf_token %}
+            {% for field in form %}           
+              <div class="form-group row my-3 p-3">
+                <label for="{{ field.id_for_label }}">
+                  {{ field.label }}
+                  {% if field.field.required %}                  
+                    <span class="required text-danger" >*</span>
+                  {% endif %}                  
+                </label>
+                {{ field }}
+                {% if field.help_text %}             
+                  <small id="id_text-help" class="form-text text-muted">
+                    {{ field.help_text }}
+                  </small>
+                {% endif %}                  
+              </div>
+            {% endfor %}            
+            <div class="d-flex justify-content-end">
+              <button type="submit" class="btn btn-primary">
+                {% if edit_shop %}
+                  Сохранить
+                {% else %}
+                  Добавить
+                {% endif %}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
