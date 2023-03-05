@@ -2,6 +2,10 @@
     <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Главная</a></li>
     <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Магазины</a></li>
     <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Товары</a></li>
-    <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Открыть магазин</a></li>
+    {% if user_have_shop %}
+      <li><a href="#" class="nav-link px-2 link-dark">Мои магазины</a></li>
+    {% else %}
+      <li><a href="#" class="nav-link px-2 link-dark">Открыть магазин</a></li>
+    {% endif %}
 </ul>
 <p class="text-center text-muted">© 2023 Digital Store</p>

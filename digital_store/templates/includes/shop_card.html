@@ -1,0 +1,36 @@
+{% load thumbnail %}
+<div class="card" style="padding:0;">
+  {% comment %} {% if shop.image %}
+    {% with image=shop.image %}
+      {% thumbnail image "960x339" crop="center" upscale=TRUE as im %}
+        <img class="card-img top" src="{{ im.url }}">
+      {% endthumbnail %}
+    {% endwith %}
+  {% else %}
+    {% with image=default_image %}
+      {% thumbnail image "960x339" crop="center" upscale=TRUE as im %}
+        <img class="card-img top" src="{{ im.url }}">
+      {% endthumbnail %}
+    {% endwith %} {% endcomment %}
+    {% comment %} {% endif %} {% endcomment %}
+    {% if shop.image %}
+      {% thumbnail shop.image "960x500" crop="center" upscale=TRUE as im %}
+        <img class="card-img top" src="{{ im.url }}">
+      {% endthumbnail %}
+    {% endif %}
+  
+  <div class="card-header">
+    {{ shop.name }}
+  </div>
+  <div class="card-body">
+    <h5 class="card-title">Средний рейтинг магазина</h5>
+    <p class="card-text">{{ shop.description }}</p>
+    <hr></hr>
+    <div class="text-center">
+      <a href="{% url 'shop:shop' shop.pk %}" class="btn btn-primary">Перейти в магазин</a>
+      <a href="{% url 'shop:edit_shop' shop.pk %}" class="btn btn-primary">Редактировать магазин</a>
+      <a href="{% url 'shop:delete_shop' shop.pk %}" class="btn btn-primary">Удалить магазин</a>
+    </div>
+  </div>
+</div>
+  
