@@ -5,12 +5,12 @@
     <section class="py-5 text-center container">
       <div class="row py-lg-5">
         <div class="col-lg-6 col-md-8 mx-auto">
-          <h1 class="fw-light">Страница магазина ...</h1>
+          <h1 class="fw-light">Страница магазина <b>{{ shop.name }}</b></h1>
           <p>
             <a href="#" class="btn btn-primary my-2">Профиль продавца</a>
             <a href="#" class="btn btn-secondary my-2">Посмотреть отзывы</a>
             {% if shop.owner == request.user %}
-              <a href="#" class="btn btn-secondary my-2">Добавить товар</a>
+              <a href="{% url 'shop:create_product' shop.id %}" class="btn btn-secondary my-2">Добавить товар</a>
             {% endif %}
             <p>Средняя оценка: 4/5⭐</p>
           </p>
@@ -22,9 +22,18 @@
         <h2>Товары продавца</h2>
       </section>
       <div class="container">
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-          {% include 'includes/card.html' %}
-        </div>
+        {% if products_exists %}
+          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+            {% for product in products %}
+              {% include 'includes/card.html' %}
+            {% endfor %}
+          </div>
+        {% else %}
+          <section class="py-2 text-center container">
+            <h4>На данный момент магазин пуст</h4>
+            <a href="{% url 'shop:create_product' shop.id %}" class="btn btn-secondary my-2">Добавьте свой первый продукт</a>
+          </section>
+        {% endif %}
       </div>
     </div>
   </main>

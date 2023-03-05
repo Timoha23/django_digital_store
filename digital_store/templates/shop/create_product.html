@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% block title %}
-{% if edit_shop %}
-  Редактировать магазин
+{% if edit_product %}
+  Редактировать продукт
 {% else %}
-  Создать магазин
+  Добавить продукт
 {% endif %}
 {% endblock %}
 {% block content %}
@@ -11,17 +11,17 @@
     <div class="col-md-8 p-5">
       <div class="card">
           <div class="card-header"> 
-            {% if edit_shop %}      
-              Редактировать пост 
+            {% if edit_product %}      
+              Редактировать продукт 
             {% else %}
-              Новый магазин
+              Новый продукт
             {% endif %}            
           </div>
         <div class="card-body">
-          {% if edit_shop %}   
-            <form method="post" enctype="multipart/form-data" action="{% url 'shop:edit_shop' shop_id %}">
+          {% if edit_product %}   
+            <form method="post" enctype="multipart/form-data" action="{% url 'shop:edit_product' product_id shop.id %}">
           {% else %}
-            <form method="post" enctype="multipart/form-data" action="{% url 'shop:create_shop' %}">
+            <form method="post" enctype="multipart/form-data" action="{% url 'shop:create_product' shop.id %}">
           {% endif %}
           {% csrf_token %}
             {% for field in form %}           
@@ -39,10 +39,10 @@
                   </small>
                 {% endif %}                  
               </div>
-            {% endfor %}            
+            {% endfor %}
             <div class="d-flex justify-content-end">
               <button type="submit" class="btn btn-primary">
-                {% if edit_shop %}
+                {% if edit_product %}
                   Сохранить
                 {% else %}
                   Добавить
