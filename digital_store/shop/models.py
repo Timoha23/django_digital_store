@@ -10,10 +10,11 @@ class Shop(models.Model):
     """
 
     SHOP_STATUS = (
-        ('Reject', 'Reject'),
-        ('Accept', 'Accept'),
+        ('Reject', 'Одобрено'),
+        ('Accept', 'Отклонено'),
         ('In_Consideration', 'В рассмотрении'),
     )
+
     DEFAULT_STATUS = SHOP_STATUS[-1][0]
 
     name = models.CharField(
@@ -91,8 +92,11 @@ class Product(models.Model):
     shop = models.ForeignKey(
         Shop,
         on_delete=models.CASCADE,
-        related_name='shop',
+        related_name='shop_in_product',
         verbose_name='Магазин',
+    )
+    price = models.PositiveIntegerField(
+        verbose_name='Цена',
     )
     category = models.ManyToManyField(
         Category,
@@ -139,7 +143,8 @@ class Item(models.Model):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        verbose_name='Продукт'
+        related_name='product_in_item',
+        verbose_name='Продукт',
     )
     item = models.CharField(
         max_length=1024,

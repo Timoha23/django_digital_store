@@ -1,21 +1,33 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
 
 from digital_store.settings import MEDIA_ROOT
-from .models import Shop, Product
+from .models import Shop, Product, Item
 from .form import ShopForm, ProductForm, ItemForm
 
 
 def index(request):
     """
-    Вью главной страницы проекта
+    Главная страница проекта
     """
 
-    return render(request, template_name='shop/index.html')
+    products = Product.objects.all().order_by('-created_date')
+    print(products.first().shop.owner)
+
+    context = {
+        'products': products,
+    }
+
+    return render(
+        request,
+        context=context,
+        template_name='shop/index.html'
+    )
 
 
 def shop(request, shop_id):
     """
-    Вью страницы магазина
+    Страница магазина
     """
 
     shop = get_object_or_404(Shop, id=shop_id)
@@ -30,26 +42,40 @@ def shop(request, shop_id):
     return render(request, context=context, template_name='shop/shop.html')
 
 
-def product(request, item_id):
+def product(request, product_id):
     """
-    Вью страницы продукта
+    Страница продукта
     """
+    product = get_object_or_404(Product, pk=product_id)
+    shop = Shop.objects.get(shop_in_product=product_id)
+    items = Item.objects.filter(product=product)
 
-    print(item_id)
-    return render(request, template_name='shop/product.html')
+    context = {
+        'shop': shop,
+        'product': product,
+        'items': items,
+        'items_exists': items.exists(),
+    }
+
+    return render(
+        request,
+        context=context,
+        template_name='shop/product.html'
+    )
 
 
 def cart(request):
     """
-    Втю страницы корзины
+    Страница корзины
     """
 
     return render(request, template_name='users/cart.html')
 
 
+@login_required
 def create_shop(request):
     """
-    Вью траницы создания магазина
+    Сраница создания магазина
     """
 
     form = ShopForm(request.POST or None,
@@ -77,7 +103,7 @@ def create_shop(request):
 
 def edit_shop(request, shop_id):
     """
-    Вью редактирование магазина
+    Редактирование магазина
     """
     shop = get_object_or_404(Shop, pk=shop_id)
     form = ShopForm(request.POST or None,
@@ -100,15 +126,18 @@ def edit_shop(request, shop_id):
     )
 
 
+@login_required
 def user_shops(request):
     """
-    Вью просмотр магазинов для владельца
+    Просмотр магазинов для владельца
     """
+
     shops = Shop.objects.filter(owner=request.user)
     # default_image = STATICFILES_DIRS[0] + 'img/defautl/shop.img'
 
     context = {
         'shops': shops,
+        'shops_exists': shops.exists(),
         # 'default_image': default_image,
     }
 
@@ -121,7 +150,7 @@ def user_shops(request):
 
 def delete_shop(request, shop_id):
     """
-    Вью для удаления магазина юзером
+    Удаление магазина юзером
     """
 
     shop = get_object_or_404(Shop, id=shop_id, owner=request.user)
@@ -131,7 +160,7 @@ def delete_shop(request, shop_id):
 
 def create_product(request, shop_id):
     """
-    Вью создание подукта
+    Создание подукта
     """
 
     form = ProductForm(request.POST or None,
@@ -158,9 +187,9 @@ def create_product(request, shop_id):
     )
 
 
-def edit_product(request, product_id, shop_id):
+def edit_product(request, shop_id, product_id):
     """
-    Вью редактирование продукта
+    Редактирование продукта
     """
     product = get_object_or_404(Product, pk=product_id)
     shop = product.shop
@@ -188,7 +217,7 @@ def edit_product(request, product_id, shop_id):
 
 def delete_product(request, product_id):
     """
-    Вью удаление продукта
+    Удаление продукта
     """
 
     product = get_object_or_404(Product, id=product_id)
@@ -196,4 +225,42 @@ def delete_product(request, product_id):
     if product.shop.owner == request.user:
         product.delete()
         return redirect('shop:shop', product.shop.id)
+    return redirect('shop:index')
+
+
+def create_item(request, product_id):
+    """
+    Добавление товара в продукт
+    """
+
+    form = ItemForm(request.POST or None)
+    product = get_object_or_404(Product, id=product_id)
+
+    if form.is_valid():
+        item = form.save(commit=False)
+        item.product = product
+        item.save()
+        return redirect('shop:product', product.id)
+
+    context = {
+        'form': form,
+        'product': product,
+    }
+
+    return render(
+        request,
+        context=context,
+        template_name='shop/create_item.html'
+    )
+
+
+def delete_item(request, item_id):
+    """
+    Удаление товара из продукта
+    """
+
+    item = get_object_or_404(Item, id=item_id)
+    if item.product.shop.owner == request.user:
+        item.delete()
+        return redirect('shop:product', item.product.id)
     return redirect('shop:index')

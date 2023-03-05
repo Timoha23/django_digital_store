@@ -4,11 +4,11 @@ from .models import Shop, Product, Item, Category
 
 
 class ShopAdmin(admin.ModelAdmin):
-    list_display = ('name', 'owner', 'image', 'description', 'created_date')
+    list_display = ('id', 'name', 'owner', 'image', 'description', 'created_date')
 
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'shop', 'get_categories', 'description', 'count',
+    list_display = ('id', 'name', 'shop', 'get_categories', 'description', 'count',
                     'visibile', 'created_date')
 
     def get_categories(self, obj):
@@ -16,11 +16,11 @@ class ProductAdmin(admin.ModelAdmin):
 
 
 class ItemAdmin(admin.ModelAdmin):
-    list_display = ('product', 'item', 'created_date')
+    list_display = ('id', 'product', 'item', 'created_date')
 
 
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'created_date')
+    list_display = ('id', 'name', 'created_date')
 
 
 admin.site.register(Shop, ShopAdmin)
