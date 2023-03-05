@@ -1,5 +1,26 @@
 {% extends 'base.html' %}
-{% block title %} Выход {% endblock title %}
+{% block title %}Вы вышли из системы{% endblock %}
 {% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-8 p-5">
+      <div class="card">
+        <div class="card-header">
+          Вы не авторизованы
+        </div>
+        <div class="card-body">
+          <p style="text-align: center;">
+            Вы не вошли в свой аккаунт.
+          </p>
+          <div style="width: 10%; margin: auto;">
+            <a href="">
+              <button class="btn btn-dark">
+                Войти
+              </button>
+            </a>
+          </div>
+        </div>
 
-{% endblock %}
+      </div>
+    </div>
+  </div>
+{% endblock %} 
