@@ -31,7 +31,9 @@
         {% else %}
           <section class="py-2 text-center container">
             <h4>На данный момент магазин пуст</h4>
-            <a href="{% url 'shop:create_product' shop.id %}" class="btn btn-secondary my-2">Добавьте свой первый продукт</a>
+            {% if shop.owner == request.user %}
+              <a href="{% url 'shop:create_product' shop.id %}" class="btn btn-secondary my-2">Добавьте свой первый продукт</a>
+            {% endif %}
           </section>
         {% endif %}
       </div>

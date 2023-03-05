@@ -1,28 +1,16 @@
 {% extends 'base.html' %}
 {% block title %}
-{% if edit_product %}
-  Редактировать продукт
-{% else %}
-  Добавить продукт
-{% endif %}
+Добавить товар
 {% endblock %}
 {% block content %}
   <div class="row justify-content-center">
     <div class="col-md-8 p-5">
       <div class="card">
           <div class="card-header"> 
-            {% if edit_product %}      
-              Редактировать продукт 
-            {% else %}
-              Новый продукт
-            {% endif %}            
+            Новый товар          
           </div>
         <div class="card-body">
-          {% if edit_product %}   
-            <form method="post" enctype="multipart/form-data" action="{% url 'shop:edit_product' shop.id product_id %}">
-          {% else %}
-            <form method="post" enctype="multipart/form-data" action="{% url 'shop:create_product' shop.id %}">
-          {% endif %}
+          <form method="post" enctype="multipart/form-data" action="{% url 'shop:create_item' product.id %}">
           {% csrf_token %}
             {% for field in form %}           
               <div class="form-group row my-3 p-3">
