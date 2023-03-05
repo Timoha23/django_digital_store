@@ -5,13 +5,13 @@
     </a>
 
     <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-        <li><a href="#" class="nav-link px-2 link-secondary">Главная</a></li>
+        <li><a href="{% url 'shop:index' %}" class="nav-link px-2 link-secondary">Главная</a></li>
         <li><a href="#" class="nav-link px-2 link-secondary">Магазины</a></li>
         <li><a href="#" class="nav-link px-2 link-dark">Товары</a></li>
         {% if user_have_shop %}
           <li><a href="{% url 'shop:user_shops' %}" class="nav-link px-2 link-dark">Мои магазины</a></li>
         {% else %}
-          <li><a href="#" class="nav-link px-2 link-dark">Открыть магазин</a></li>
+          <li><a href="{% url 'shop:user_shops' %}" class="nav-link px-2 link-dark">Открыть магазин</a></li>
         {% endif %}
     </ul>
 

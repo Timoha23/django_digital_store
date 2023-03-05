@@ -17,20 +17,22 @@
       <div class="d-flex justify-content-between align-items-center">
         <div class="btn-group">
           
-          {% if shop.owner != request.user %}
+          {% if product.shop.owner != request.user %}
             <button type="button" class="btn btn-sm btn-outline-secondary">В корзину</button>
             <button type="button" class="btn btn-sm btn-outline-secondary">Смотреть</button>
           {% endif %}
         </div>
         <small class="text-muted">{{ product.created_date }}</small>
       </div>
-      {% if shop.owner == request.user %}
+      {% if product.shop.owner == request.user %}
         <div class="btn-group">
-          <a href="#" class="btn btn-sm btn-outline-secondary">Страница продукта</a>
-          <a href="#" class="btn btn-sm btn-outline-secondary">Добавить товар</a>
-          <a href="#" class="btn btn-sm btn-outline-secondary">Список товаров</a>
+          {% if request.resolver_match.view_name == 'shop:product' %}
+          {% else %}
+            <a href="{% url 'shop:product' product.id %}" class="btn btn-sm btn-outline-secondary">Страница продукта</a>
+          {% endif %}
+          <a href="{% url 'shop:create_item' product.id %}" class="btn btn-sm btn-outline-secondary">Добавить товар</a>
           <a href="{% url 'shop:delete_product' product.id %}" class="btn btn-sm btn-outline-secondary">Удалить продукт</a>
-          <a href="{% url 'shop:edit_product' product.id shop.id %}" class="btn btn-sm btn-outline-secondary">Изменить продукт</a>
+          <a href="{% url 'shop:edit_product' product.shop.id product.id %}" class="btn btn-sm btn-outline-secondary">Изменить продукт</a>
         </div>
       {% endif %}
     </div>
