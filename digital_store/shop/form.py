@@ -13,4 +13,15 @@ class ShopForm(forms.ModelForm):
 
 
 class ProductForm(forms.ModelForm):
-    ...
+    class Meta:
+        model = Product
+        fields = ('name', 'category', 'image', 'description', 'visibile')
+
+
+class ItemForm(forms.ModelForm):
+    class Meta:
+        model = Item
+        widgets = {
+            'item': forms.Textarea,
+        }
+        fields = ('item',)

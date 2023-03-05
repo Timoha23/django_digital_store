@@ -64,6 +64,9 @@ class Category(models.Model):
         verbose_name='Дата создания',
     )
 
+    def __str__(self):
+        return self.name
+
 
 class Product(models.Model):
     """
@@ -97,11 +100,17 @@ class Product(models.Model):
         # default=get_default_category(),
         verbose_name='Категория',
     )
+    image = models.ImageField(
+        upload_to='shop/product/',
+        verbose_name='Изображение',
+        blank=True,
+    )
     description = models.CharField(
         max_length=1024,
         verbose_name='Описание',
     )
     count = models.PositiveIntegerField(
+        default=0,
         verbose_name='Количество товара'
     )
     visibile = models.BooleanField(

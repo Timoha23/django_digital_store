@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 
 from digital_store.settings import MEDIA_ROOT
-from .models import Shop
-from .form import ShopForm
+from .models import Shop, Product
+from .form import ShopForm, ProductForm, ItemForm
 
 
 def index(request):
@@ -19,9 +19,12 @@ def shop(request, shop_id):
     """
 
     shop = get_object_or_404(Shop, id=shop_id)
+    products = Product.objects.filter(shop=shop)
 
     context = {
         'shop': shop,
+        'products': products,
+        'products_exists': products.exists(),
     }
 
     return render(request, context=context, template_name='shop/shop.html')
@@ -123,4 +126,74 @@ def delete_shop(request, shop_id):
 
     shop = get_object_or_404(Shop, id=shop_id, owner=request.user)
     shop.delete()
+    return redirect('shop:index')
+
+
+def create_product(request, shop_id):
+    """
+    Вью создание подукта
+    """
+
+    form = ProductForm(request.POST or None,
+                       files=request.FILES or None)
+
+    shop = Shop.objects.get(id=shop_id)
+
+    if form.is_valid():
+        product = form.save(commit=False)
+        product.shop = shop
+        product.count = 0
+        product.save()
+        return redirect('shop:shop', shop_id)
+
+    context = {
+        'form': form,
+        'shop': shop,
+    }
+
+    return render(
+        request,
+        context=context,
+        template_name='shop/create_product.html'
+    )
+
+
+def edit_product(request, product_id, shop_id):
+    """
+    Вью редактирование продукта
+    """
+    product = get_object_or_404(Product, pk=product_id)
+    shop = product.shop
+    form = ProductForm(request.POST or None,
+                       files=request.FILES or None,
+                       instance=product)
+
+    if product.shop.owner != request.user:
+        return redirect('shop:index')
+    if form.is_valid():
+        form.save()
+        return redirect('shop:shop', shop_id)
+    context = {
+        'edit_product': True,
+        'form': form,
+        'product_id': product_id,
+        'shop': shop,
+    }
+    return render(
+        request,
+        context=context,
+        template_name='shop/create_product.html',
+    )
+
+
+def delete_product(request, product_id):
+    """
+    Вью удаление продукта
+    """
+
+    product = get_object_or_404(Product, id=product_id)
+
+    if product.shop.owner == request.user:
+        product.delete()
+        return redirect('shop:shop', product.shop.id)
     return redirect('shop:index')
