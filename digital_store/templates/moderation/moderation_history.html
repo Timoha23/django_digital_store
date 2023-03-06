@@ -32,10 +32,10 @@
                     <th scope="col">Изменить</th>
                   </tr>
                 </thead>
-                {% for element in history %}
+                {% for element in page_obj %}
                   <tbody>
                     <tr>
-                      <th scope="row">{{ forloop.counter }}</th>
+                      <th scope="row">{{ page_obj.start_index|add:forloop.counter0 }}</th>
                       <td>{{ element.id }}</td>
                       <td>{{ element.type }}</td>
                       {% if element.product %}
@@ -51,7 +51,7 @@
                       {% endif %}
                       <td id="description">{{ element.reason }}</td>
                       <td>{{ element.moderator.username }}</td>
-                      <td>{{ element.created_date }}</td>
+                      <td>{{ element.update_date }}</td>
                       <td>
                         {% if element.product %}
                           <a href="{% url 'moderation:accept_product' element.product.id %}" class="btn btn-outline-success">Одобрить</a>
@@ -65,6 +65,9 @@
                   </tbody>
                 {% endfor %}
               </table>
+              <div class="d-flex align-items-center justify-content-center">
+                {% include 'includes/paginator.html'%}
+              </div>
           {% else%}
             <h3 class='text-center'>На данный список пуст</h3>
           {% endif %}

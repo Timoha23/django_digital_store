@@ -15,8 +15,8 @@
     <div class="album py-5 bg-light" style="margin:auto;width:60%">
       <div class="container" style="width:90%">
         <div class="row">
-          {% if products %}
-            {% for product in products %}
+          {% if page_obj %}
+            {% for product in page_obj %}
               {% include 'includes/card.html' %}
               {% if forloop.last %}
               {% else %}
@@ -26,6 +26,9 @@
           {% else%}
             <h3 class='text-center'>На данный момент список пуст</h3>
           {% endif %}
+        </div>
+        <div class="d-flex align-items-center justify-content-center">
+          {% include 'includes/paginator.html'%}
         </div>
       </div>
     </div>

@@ -33,6 +33,12 @@
         </div>
       {% else %}
         {% if product.shop.owner == request.user %}
+          <div>
+            <hr></hr>
+            <h5>Информация для владельца</h3>
+            <p>Видимость продукта: {{ product.visibile }}</p>
+            <p>Статус продукта: {{ product.get_status_display }}</p>
+          </div>
           <div class="btn-group">
             {% if request.resolver_match.view_name == 'shop:product' %}
             {% else %}

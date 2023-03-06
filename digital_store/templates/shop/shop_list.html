@@ -8,24 +8,31 @@
           <h1 class="fw-light">Digital Store</h1>
           <p class="lead text-muted">Еще нет магазина? Можешь открыть прямо сейчас и оказаться в этом списке!</p>
           <p>
-            <a href="#" class="btn btn-secondary my-2">Открыть магазин</a>
+            <a href="{% url 'shop:create_shop' %}" class="btn btn-secondary my-2">Открыть магазин</a>
           </p>
         </div>
       </div>
     </section>
     <div class="album py-5 bg-light" style="margin:auto;width:60%">
       <section class="py-5 text-center container">
-        <h2>Магазины</h2>
+        {% if page_obj %}
+          <h2>Магазины</h2>
+        {% else %}
+          <h2>Магазинов нет, будь первым!</h2>
+        {% endif %}
       </section>
       <div class="container" style="width:90%">
         <div class="row">
-          {% for shop in shops %}
+          {% for shop in page_obj %}
             {% include 'includes/shop_card.html' %}
             {% if forloop.last %}
             {% else %}
               <hr style="margin-top:10px"></hr>
             {% endif %}
           {% endfor %}
+        </div>
+        <div class="d-flex align-items-center justify-content-center">
+          {% include 'includes/paginator.html'%}
         </div>
       </div>
     </div>

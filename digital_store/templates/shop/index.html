@@ -17,7 +17,11 @@
 
     <div class="album py-5 bg-light">
       <section class="py-5 text-center container">
-        <h2>Последние добавленные товары</h2>
+        {% if products %}
+          <h2>Последние добавленные товары</h2>
+        {% else %}
+          <h2>На данный момент товаров нет...</h2>
+        {% endif %}
       </section>
       <div class="container">
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">

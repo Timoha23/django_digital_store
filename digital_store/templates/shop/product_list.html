@@ -6,9 +6,9 @@
       <div class="row py-lg-5">
         <div class="col-lg-6 col-md-8 mx-auto">
           <h1 class="fw-light">Digital Store</h1>
-          <p class="lead text-muted">Еще нет магазина? Можешь открыть прямо сейчас, добавить свой продукт и оказаться в этом списке!</p>
+          <p class="lead text-muted">Еще нет магазина? Можешь открыть прямо сейчас, добавить свой товар и оказаться в этом списке!</p>
           <p>
-            <a href="#" class="btn btn-secondary my-2">Открыть магазин</a>
+            <a href="{% url 'shop:create_shop' %}" class="btn btn-secondary my-2">Открыть магазин</a>
           </p>
         </div>
       </div>
@@ -16,13 +16,21 @@
 
     <div class="album py-5 bg-light">
       <section class="py-5 text-center container">
-        <h2>Продукты</h2>
+        {% if products %}
+          <h2>Товары</h2>
+        {% else %}
+          <h2>Ни одного товара нет.</h2>
+          <h2>Открывай свой магазин и добавляй свои товары!</h2>
+        {% endif %}
       </section>
       <div class="container">
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-          {% for product in products %}
+          {% for product in page_obj %}
             {% include 'includes/card.html' %}
           {% endfor %}
+        </div>
+        <div class="d-flex align-items-center justify-content-center">
+          {% include 'includes/paginator.html'%}
         </div>
       </div>
     </div>

@@ -24,9 +24,12 @@
       <div class="container">
         {% if products_exists %}
           <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-            {% for product in products %}
+            {% for product in page_obj %}
               {% include 'includes/card.html' %}
             {% endfor %}
+          </div>
+          <div class="d-flex align-items-center justify-content-center">
+            {% include 'includes/paginator.html'%}
           </div>
         {% else %}
           <section class="py-2 text-center container">
