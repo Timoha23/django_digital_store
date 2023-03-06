@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %} Модерация история {% endblock title %}
+{% block content %}
+  <main>
+    <section class="py-5 text-center container">
+      <div class="row py-lg-5">
+        <div class="col-lg-6 col-md-8 mx-auto">
+          <h1 class="fw-light">История действий модераторов</h1>
+          <h4 class="text-muted">Модератор, будь внимателен!</h4>
+          <div class="container" style="margin-top: 20px">
+          </div>
+        </div>
+      </div>
+    </section>
+    <div class="album py-5 bg-light" style="margin:auto;width:90%">
+      <div class="container" style="width:90%">
+        <div class="row">
+          {% if history %}
+            <table id="table1" class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th scope="col">№</th>
+                    <th scope="col">ID заявки</th>
+                    <th scope="col">Тип</th>
+                    <th scope="col">ID элемента</th>
+                    <th scope="col">Название</th>
+                    <th scope="col">Ссылка</th>
+                    <th class="col-md-2" scope="row">Причина</th>
+                    <th scope="col">Причина</th>
+                    <th scope="col">Имя модератора</th>
+                    <th scope="col">Время</th>
+                    <th scope="col">Изменить</th>
+                  </tr>
+                </thead>
+                {% for element in history %}
+                  <tbody>
+                    <tr>
+                      <th scope="row">{{ forloop.counter }}</th>
+                      <td>{{ element.id }}</td>
+                      <td>{{ element.type }}</td>
+                      {% if element.product %}
+                        <td>{{ element.product.id }}</td>
+                        <td>{{ element.product.name }}</td>
+                        <td><a class="btn btn-secondary my-2" href="{% url 'shop:product' element.product.id %}">Ссылка</a></td>
+                        <td>{{ element.product.get_status_display }}</td>
+                      {% else %}
+                        <td>{{ element.shop.id }}</td>
+                        <td>{{ element.shop.name }}</td>
+                        <td><a class="btn btn-secondary my-2" href="{% url 'shop:shop' element.shop.id %}">Ссылка</a></td>
+                        <td>{{ element.shop.get_status_display }}</td>
+                      {% endif %}
+                      <td id="description">{{ element.reason }}</td>
+                      <td>{{ element.moderator.username }}</td>
+                      <td>{{ element.created_date }}</td>
+                      <td>
+                        {% if element.product %}
+                          <a href="{% url 'moderation:accept_product' element.product.id %}" class="btn btn-outline-success">Одобрить</a>
+                          <a href="{% url 'moderation:reject_product' element.product.id %}" class="btn btn-outline-danger">Отклонить</a>
+                        {% else %}
+                          <a href="{% url 'moderation:accept_shop' element.shop.id %}" class="btn btn-outline-success">Одобрить</a>
+                          <a href="{% url 'moderation:reject_shop' element.shop.id %}" class="btn btn-outline-danger">Отклонить</a>
+                        {% endif %}
+                      </td>
+                    </tr>
+                  </tbody>
+                {% endfor %}
+              </table>
+          {% else%}
+            <h3 class='text-center'>На данный список пуст</h3>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </main>
+{% endblock content %}
