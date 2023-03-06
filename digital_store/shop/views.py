@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 
 from digital_store.settings import MEDIA_ROOT
 from .models import Shop, Product, Item
-from .form import ShopForm, ProductForm, ItemForm
+from .forms import ShopForm, ProductForm, ItemForm
 
 
 def index(request):
@@ -11,8 +11,7 @@ def index(request):
     Главная страница проекта
     """
 
-    products = Product.objects.all().order_by('-created_date')
-    print(products.first().shop.owner)
+    products = Product.objects.filter(status='Accept').order_by('-created_date')
 
     context = {
         'products': products,
@@ -42,6 +41,24 @@ def shop(request, shop_id):
     return render(request, context=context, template_name='shop/shop.html')
 
 
+def shop_list(request):
+    """
+    Страница со всеми магазинами
+    """
+
+    shops = Shop.objects.filter(status='Accept')
+
+    context = {
+        'shops': shops,
+    }
+
+    return render(
+        request,
+        context=context,
+        template_name='shop/shop_list.html'
+    )
+
+
 def product(request, product_id):
     """
     Страница продукта
@@ -61,6 +78,24 @@ def product(request, product_id):
         request,
         context=context,
         template_name='shop/product.html'
+    )
+
+
+def product_list(request):
+    """
+    Страница со всеми продуктами
+    """
+
+    products = Product.objects.filter(status='Accept')
+
+    context = {
+        'products': products,
+    }
+
+    return render(
+        request,
+        context=context,
+        template_name='shop/product_list.html'
     )
 
 
@@ -113,6 +148,8 @@ def edit_shop(request, shop_id):
         return redirect('shop:index')
     if form.is_valid():
         form.save()
+        shop.status = 'In_Consideration'
+        shop.save()
         return redirect('shop:user_shops')
     context = {
         'edit_shop': True,
@@ -166,7 +203,7 @@ def create_product(request, shop_id):
     form = ProductForm(request.POST or None,
                        files=request.FILES or None)
 
-    shop = Shop.objects.get(id=shop_id)
+    shop = get_object_or_404(Shop, id=shop_id)
 
     if form.is_valid():
         product = form.save(commit=False)
@@ -201,6 +238,8 @@ def edit_product(request, shop_id, product_id):
         return redirect('shop:index')
     if form.is_valid():
         form.save()
+        product.status = 'In_Consideration'
+        product.save()
         return redirect('shop:shop', shop_id)
     context = {
         'edit_product': True,
@@ -239,6 +278,8 @@ def create_item(request, product_id):
     if form.is_valid():
         item = form.save(commit=False)
         item.product = product
+        product.count += 1
+        product.save()
         item.save()
         return redirect('shop:product', product.id)
 
@@ -260,7 +301,10 @@ def delete_item(request, item_id):
     """
 
     item = get_object_or_404(Item, id=item_id)
+    product = item.product
     if item.product.shop.owner == request.user:
+        product.count -= 1
+        product.save()
         item.delete()
         return redirect('shop:product', item.product.id)
     return redirect('shop:index')

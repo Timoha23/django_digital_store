@@ -1,5 +1,4 @@
 from django.db import models
-from django.templatetags.static import static
 
 from users.models import User
 
@@ -10,8 +9,8 @@ class Shop(models.Model):
     """
 
     SHOP_STATUS = (
-        ('Reject', 'Одобрено'),
-        ('Accept', 'Отклонено'),
+        ('Accept', 'Одобрено'),
+        ('Reject', 'Отклонено'),
         ('In_Consideration', 'В рассмотрении'),
     )
 

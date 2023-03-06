@@ -4,15 +4,16 @@ from .models import Shop, Product, Item, Category
 
 
 class ShopAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'owner', 'image', 'description', 'created_date')
+    list_display = ('id', 'name', 'owner', 'image', 'description',
+                    'created_date')
 
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'shop', 'get_categories', 'description', 'count',
-                    'visibile', 'created_date')
+    list_display = ('id', 'name', 'shop', 'get_categories', 'description',
+                    'count', 'visibile', 'created_date')
 
     def get_categories(self, obj):
-        return "\n".join([c.category for c in obj.category.all()])
+        return "\n".join([c.name for c in obj.category.all()])
 
 
 class ItemAdmin(admin.ModelAdmin):
