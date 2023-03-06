@@ -169,7 +169,7 @@ def user_shops(request):
     Просмотр магазинов для владельца
     """
 
-    shops = Shop.objects.filter(owner=request.user)
+    shops = Shop.objects.select_related('owner').filter(owner=request.user)
     # default_image = STATICFILES_DIRS[0] + 'img/defautl/shop.img'
 
     context = {
@@ -204,6 +204,9 @@ def create_product(request, shop_id):
                        files=request.FILES or None)
 
     shop = get_object_or_404(Shop, id=shop_id)
+
+    if shop.status != 'Accept':
+            return redirect('shop:shop', shop_id)
 
     if form.is_valid():
         product = form.save(commit=False)
