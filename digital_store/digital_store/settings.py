@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'core.apps.CoreConfig',
     'sorl.thumbnail',
     'moderation.apps.ModerationConfig',
+    'debug_toolbar',
 ]
 
 MIDDLEWARE = [
@@ -45,7 +46,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
+
+INTERNAL_IPS = [
+    '127.0.0.1',
+] 
 
 ROOT_URLCONF = 'digital_store.urls'
 
@@ -139,3 +145,5 @@ LOGIN_REDIRECT_URL = 'shop:index'
 LOGOUT_REDIRECT_URL = 'shop:index'
 
 CSFR_FAILURE_VIEW = 'core.views.csfr_failure'
+
+STAFF_ROLES = ('admin', 'moderator')
