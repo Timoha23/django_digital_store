@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %} Страница магазинов {% endblock title %}
+{% block content %}
+  <main>
+    <section class="py-5 text-center container">
+      <div class="row py-lg-5">
+        <div class="col-lg-6 col-md-8 mx-auto">
+          <h1 class="fw-light">Digital Store</h1>
+          <p class="lead text-muted">Еще нет магазина? Можешь открыть прямо сейчас и оказаться в этом списке!</p>
+          <p>
+            <a href="#" class="btn btn-secondary my-2">Открыть магазин</a>
+          </p>
+        </div>
+      </div>
+    </section>
+    <div class="album py-5 bg-light" style="margin:auto;width:60%">
+      <section class="py-5 text-center container">
+        <h2>Магазины</h2>
+      </section>
+      <div class="container" style="width:90%">
+        <div class="row">
+          {% for shop in shops %}
+            {% include 'includes/shop_card.html' %}
+            {% if forloop.last %}
+            {% else %}
+              <hr style="margin-top:10px"></hr>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </main>
+{% endblock content %}

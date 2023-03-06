@@ -1,15 +1,14 @@
 {% extends 'base.html' %}
-{% block title %} Главная страница {% endblock title %}
+{% block title %} Страница продуктов {% endblock title %}
 {% block content %}
   <main>
     <section class="py-5 text-center container">
       <div class="row py-lg-5">
         <div class="col-lg-6 col-md-8 mx-auto">
           <h1 class="fw-light">Digital Store</h1>
-          <p class="lead text-muted">Хочешь купить? Купи у нас. Хочешь продать? Продай у нас.</p>
+          <p class="lead text-muted">Еще нет магазина? Можешь открыть прямо сейчас, добавить свой продукт и оказаться в этом списке!</p>
           <p>
-            <a href="{% url 'shop:product_list' %}" class="btn btn-primary my-2">Список товаров</a>
-            <a href="{% url 'shop:create_shop' %}" class="btn btn-secondary my-2">Открыть магазин</a>
+            <a href="#" class="btn btn-secondary my-2">Открыть магазин</a>
           </p>
         </div>
       </div>
@@ -17,7 +16,7 @@
 
     <div class="album py-5 bg-light">
       <section class="py-5 text-center container">
-        <h2>Последние добавленные товары</h2>
+        <h2>Продукты</h2>
       </section>
       <div class="container">
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
