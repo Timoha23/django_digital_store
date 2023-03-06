@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'core.apps.CoreConfig',
     'sorl.thumbnail',
+    'moderation.apps.ModerationConfig',
 ]
 
 MIDDLEWARE = [
@@ -61,7 +62,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'shop.context_processors.get_user_have_shop',
+                'core.context_processors.get_user_have_shop',
+                'core.context_processors.get_user_is_staff',
             ],
         },
     },
