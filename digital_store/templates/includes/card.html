@@ -26,7 +26,7 @@
         </div>
         <small class="text-muted">{{ product.created_date }}</small>
       </div>
-      {% if request.resolver_match.view_name == 'moderation:product_moderation' %}
+      {% if request.resolver_match.view_name == 'moderation:moderation_product' %}
         <div class="text-center">
           <a href="{% url 'moderation:accept_product' product.id %}" class="btn btn-outline-success">Одобрить</a>
           <a href="{% url 'moderation:reject_product' product.id %}" class="btn btn-outline-danger">Отклонить</a>

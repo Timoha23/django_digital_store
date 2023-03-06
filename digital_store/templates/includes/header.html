@@ -20,8 +20,9 @@
           </a>
         
           <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-            <li><a class="dropdown-item" href="{% url 'moderation:shop_moderation' %}">Магазины</a></li>
-            <li><a class="dropdown-item" href="{% url 'moderation:product_moderation' %}">Продукты</a></li>
+            <li><a class="dropdown-item" href="{% url 'moderation:moderation_shop' %}">Магазины</a></li>
+            <li><a class="dropdown-item" href="{% url 'moderation:moderation_product' %}">Продукты</a></li>
+            <li><a class="dropdown-item" href="{% url 'moderation:moderation_history' %}">История</a></li>
           </ul>
         </div>
         {% endif %}
