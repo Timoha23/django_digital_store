@@ -39,9 +39,13 @@ class ModerationHistory(models.Model):
         verbose_name='Причина',
         null=True,
     )
+    update_date = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Дата последней првоерки',
+    )
     created_date = models.DateTimeField(
         auto_now_add=True,
-        verbose_name='Дата проверки',
+        verbose_name='Дата первой проверки',
     )
 
     def __str__(self):

@@ -5,7 +5,7 @@ from .models import ModerationHistory
 
 class ModerationHistoryAdmin(admin.ModelAdmin):
     list_display = ('type', 'moderator', 'shop', 'product', 'reason',
-                    'created_date')
+                    'update_date', 'created_date')
 
 
 admin.site.register(ModerationHistory, ModerationHistoryAdmin)

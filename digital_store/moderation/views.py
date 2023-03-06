@@ -1,11 +1,27 @@
 from functools import wraps
 
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
 
 from digital_store.settings import STAFF_ROLES
 from shop.models import Shop, Product
 from .models import ModerationHistory
 from .forms import RejectForm
+
+
+def get_last_page(request):
+    return request.META.get('HTTP_REFERER')
+
+
+def get_context_paginator(queryset, request):
+    count_posts = 10
+    paginator = Paginator(queryset, count_posts)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return {
+        'page_obj': page_obj,
+    }
 
 
 def moderator_required(func):
@@ -29,6 +45,8 @@ def moderation_shop(request):
     context = {
         'shops': shops,
     }
+
+    context.update(get_context_paginator(shops, request))
 
     return render(
         request,
@@ -54,6 +72,7 @@ def accept_shop(request, shop_id):
             shop=shop,
             product=None,
             reason=None,
+            update_date=timezone.now(),
         )
     else:
         ModerationHistory.objects.create(
@@ -64,7 +83,7 @@ def accept_shop(request, shop_id):
             reason=None,
         )
 
-    return redirect('moderation:moderation_history')
+    return redirect(get_last_page(request))
 
 
 @moderator_required
@@ -85,7 +104,8 @@ def reject_shop(request, shop_id):
                 moderator=request.user,
                 shop=shop,
                 product=None,
-                reason=form.cleaned_data.get('reason')
+                reason=form.cleaned_data.get('reason'),
+                update_date=timezone.now(),
             )
         else:
             ModerationHistory.objects.create(
@@ -128,6 +148,8 @@ def moderation_product(request):
         'products': products,
     }
 
+    context.update(get_context_paginator(products, request))
+
     return render(
         request,
         context=context,
@@ -154,6 +176,7 @@ def accept_product(request, product_id):
             shop=product.shop,
             product=product,
             reason=None,
+            update_date=timezone.now(),
         )
     else:
         ModerationHistory.objects.create(
@@ -184,7 +207,8 @@ def reject_product(request, product_id):
                 moderator=request.user,
                 shop=product.shop,
                 product=product,
-                reason=form.cleaned_data.get('reason')
+                reason=form.cleaned_data.get('reason'),
+                update_date=timezone.now(),
             )
         else:
             ModerationHistory.objects.create(
@@ -194,7 +218,7 @@ def reject_product(request, product_id):
                 product=product,
                 reason=None,
             )
-        return redirect('moderation:moderation_product')
+        return redirect('moderation:moderation_history')
 
     context = {
         'product': product,
@@ -214,12 +238,13 @@ def moderation_history(request):
     История действий модератора
     """
 
-    history = ModerationHistory.objects.select_related('shop').select_related('product').select_related('moderator').all()
+    history = ModerationHistory.objects.select_related('shop').select_related('product').select_related('moderator').all().order_by('update_date')
 
     context = {
         'history': history,
     }
-    print(history)
+    
+    context.update(get_context_paginator(history, request))
     return render(
         request,
         context=context,
