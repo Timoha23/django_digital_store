@@ -28,9 +28,16 @@
     <p class="card-text">{{ shop.description }}</p>
     <hr></hr>
     <div class="text-center">
-      <a href="{% url 'shop:shop' shop.pk %}" class="btn btn-primary">Перейти в магазин</a>
-      <a href="{% url 'shop:edit_shop' shop.pk %}" class="btn btn-primary">Редактировать магазин</a>
-      <a href="{% url 'shop:delete_shop' shop.pk %}" class="btn btn-primary">Удалить магазин</a>
+      {% if request.resolver_match.view_name == 'moderation:shop_moderation' %}
+        <a href="{% url 'moderation:accept_shop' shop.id %}" class="btn btn-outline-success">Одобрить</a>
+        <a href="{% url 'moderation:reject_shop' shop.id %}" class="btn btn-outline-danger">Отклонить</a>
+      {% else %}
+        <a href="{% url 'shop:shop' shop.pk %}" class="btn btn-primary">Перейти в магазин</a>
+        {% if request.user == shop.owner %}
+          <a href="{% url 'shop:edit_shop' shop.pk %}" class="btn btn-primary">Редактировать магазин</a>
+          <a href="{% url 'shop:delete_shop' shop.pk %}" class="btn btn-primary">Удалить магазин</a>
+        {% endif %}
+      {% endif %}
     </div>
   </div>
 </div>

@@ -18,22 +18,31 @@
         <div class="btn-group">
           
           {% if product.shop.owner != request.user %}
+            {% if request.resolver_match.view_name != 'shop:product' %}
+              <a href="{% url 'shop:product' product.id %}" class="btn btn-sm btn-outline-secondary">Смотреть</a>
+            {% endif %}
             <button type="button" class="btn btn-sm btn-outline-secondary">В корзину</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary">Смотреть</button>
           {% endif %}
         </div>
         <small class="text-muted">{{ product.created_date }}</small>
       </div>
-      {% if product.shop.owner == request.user %}
-        <div class="btn-group">
-          {% if request.resolver_match.view_name == 'shop:product' %}
-          {% else %}
-            <a href="{% url 'shop:product' product.id %}" class="btn btn-sm btn-outline-secondary">Страница продукта</a>
-          {% endif %}
-          <a href="{% url 'shop:create_item' product.id %}" class="btn btn-sm btn-outline-secondary">Добавить товар</a>
-          <a href="{% url 'shop:delete_product' product.id %}" class="btn btn-sm btn-outline-secondary">Удалить продукт</a>
-          <a href="{% url 'shop:edit_product' product.shop.id product.id %}" class="btn btn-sm btn-outline-secondary">Изменить продукт</a>
+      {% if request.resolver_match.view_name == 'moderation:product_moderation' %}
+        <div class="text-center">
+          <a href="{% url 'moderation:accept_product' product.id %}" class="btn btn-outline-success">Одобрить</a>
+          <a href="{% url 'moderation:reject_product' product.id %}" class="btn btn-outline-danger">Отклонить</a>
         </div>
+      {% else %}
+        {% if product.shop.owner == request.user %}
+          <div class="btn-group">
+            {% if request.resolver_match.view_name == 'shop:product' %}
+            {% else %}
+              <a href="{% url 'shop:product' product.id %}" class="btn btn-sm btn-outline-secondary">Страница продукта</a>
+            {% endif %}
+            <a href="{% url 'shop:create_item' product.id %}" class="btn btn-sm btn-outline-secondary">Добавить товар</a>
+            <a href="{% url 'shop:delete_product' product.id %}" class="btn btn-sm btn-outline-secondary">Удалить продукт</a>
+            <a href="{% url 'shop:edit_product' product.shop.id product.id %}" class="btn btn-sm btn-outline-secondary">Изменить продукт</a>
+          </div>
+        {% endif %}
       {% endif %}
     </div>
   </div>

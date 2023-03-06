@@ -6,12 +6,24 @@
 
     <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
         <li><a href="{% url 'shop:index' %}" class="nav-link px-2 link-secondary">Главная</a></li>
-        <li><a href="#" class="nav-link px-2 link-secondary">Магазины</a></li>
-        <li><a href="#" class="nav-link px-2 link-dark">Товары</a></li>
+        <li><a href="{% url 'shop:shop_list' %}" class="nav-link px-2 link-secondary">Магазины</a></li>
+        <li><a href="{% url 'shop:product_list' %}" class="nav-link px-2 link-dark">Товары</a></li>
         {% if user_have_shop %}
           <li><a href="{% url 'shop:user_shops' %}" class="nav-link px-2 link-dark">Мои магазины</a></li>
         {% else %}
           <li><a href="{% url 'shop:user_shops' %}" class="nav-link px-2 link-dark">Открыть магазин</a></li>
+        {% endif %}
+        {% if is_staff %}
+        <div class="dropdown">
+          <a class="btn btn-light dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+            Уголок модератора
+          </a>
+        
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+            <li><a class="dropdown-item" href="{% url 'moderation:shop_moderation' %}">Магазины</a></li>
+            <li><a class="dropdown-item" href="{% url 'moderation:product_moderation' %}">Продукты</a></li>
+          </ul>
+        </div>
         {% endif %}
     </ul>
 
@@ -19,7 +31,7 @@
         <input type="search" class="form-control" placeholder="Search..." aria-label="Search">
     </form>
 
-    {% if user.is_authenticated %}
+    {% if request.user.is_authenticated %}
         <div class="dropdown text-end">
             <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
             <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
