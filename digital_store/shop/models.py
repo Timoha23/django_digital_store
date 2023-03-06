@@ -111,7 +111,7 @@ class Product(models.Model):
         verbose_name='Количество товара'
     )
     visibile = models.BooleanField(
-        default=False,
+        default=True,
         verbose_name='Видимость продукта',
     )
     status = models.CharField(

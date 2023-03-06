@@ -2,13 +2,18 @@ from functools import wraps
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 
 from digital_store.settings import MEDIA_ROOT
+from moderation.models import ModerationHistory
 from .models import Shop, Product, Item
 from .forms import ShopForm, ProductForm, ItemForm
 
 
 def owner_required(func):
+    """
+    Декоратор. Проверка является ли юзер владельцем магазина
+    """
     @wraps(func)
     def wrapper(request, *args, **kwargs):
         if 'shop_id' in kwargs:
@@ -30,16 +35,30 @@ def owner_required(func):
     return wrapper
 
 
+def get_context_paginator(queryset, request, is_products=None):
+    if is_products:
+        count_posts = 9
+    else:
+        count_posts = 10
+    paginator = Paginator(queryset, count_posts)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return {
+        'page_obj': page_obj,
+    }
+
+
 def index(request):
     """
     Главная страница проекта
     """
 
-    products = Product.objects.filter(status='Accept').order_by('-created_date')
+    products = Product.objects.filter(status='Accept', visibile=True).order_by('-created_date')[:9]
 
     context = {
         'products': products,
     }
+
 
     return render(
         request,
@@ -54,13 +73,19 @@ def shop(request, shop_id):
     """
 
     shop = get_object_or_404(Shop, id=shop_id)
-    products = Product.objects.filter(shop=shop, status='Accept')
+    if request.user == shop.owner:
+        products = Product.objects.filter(shop=shop)
+    else:
+        products = Product.objects.filter(shop=shop, status='Accept', 
+                                          visibile=True)
 
     context = {
         'shop': shop,
         'products': products,
         'products_exists': products.exists(),
     }
+
+    context.update(get_context_paginator(products, request, is_products=True))
 
     return render(request, context=context, template_name='shop/shop.html')
 
@@ -76,6 +101,7 @@ def shop_list(request):
         'shops': shops,
     }
 
+    context.update(get_context_paginator(shops, request))
     return render(
         request,
         context=context,
@@ -115,6 +141,8 @@ def product_list(request):
     context = {
         'products': products,
     }
+
+    context.update(get_context_paginator(products, request, is_products=True))
 
     return render(
         request,
@@ -174,6 +202,7 @@ def edit_shop(request, shop_id):
         form.save()
         shop.status = 'In_Consideration'
         shop.save()
+        ModerationHistory.objects.filter(shop=shop, product=None).delete()
         return redirect('shop:user_shops')
     context = {
         'edit_shop': True,
@@ -202,6 +231,7 @@ def user_shops(request):
         # 'default_image': default_image,
     }
 
+    context.update(get_context_paginator(shops, request))
     return render(
         request,
         context=context,
@@ -268,6 +298,7 @@ def edit_product(request, shop_id, product_id):
         form.save()
         product.status = 'In_Consideration'
         product.save()
+        ModerationHistory.objects.filter(product=product).delete()
         return redirect('shop:shop', shop_id)
     context = {
         'edit_product': True,
