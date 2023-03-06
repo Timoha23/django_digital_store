@@ -47,8 +47,8 @@ def accept_shop(request, shop_id):
     shop.status = 'Accept'
     shop.save()
 
-    if ModerationHistory.objects.filter(shop=shop).exists():
-        ModerationHistory.objects.filter(shop=shop).update(
+    if ModerationHistory.objects.filter(shop=shop, product=None).exists():
+        ModerationHistory.objects.filter(shop=shop, product=None).update(
             type='shop',
             moderator=request.user,
             shop=shop,
@@ -64,7 +64,7 @@ def accept_shop(request, shop_id):
             reason=None,
         )
 
-    return redirect('moderation:moderation_shop')
+    return redirect('moderation:moderation_history')
 
 
 @moderator_required
@@ -75,12 +75,12 @@ def reject_shop(request, shop_id):
 
     form = RejectForm(request.POST or None)
     shop = get_object_or_404(Shop, id=shop_id)
-    print(shop)
+
     if form.is_valid():
         shop.status = 'Reject'
         shop.save()
-        if ModerationHistory.objects.filter(shop=shop).exists():
-            ModerationHistory.objects.filter(shop=shop).update(
+        if ModerationHistory.objects.filter(shop=shop, product=None).exists():
+            ModerationHistory.objects.filter(shop=shop, product=None).update(
                 type='shop',
                 moderator=request.user,
                 shop=shop,
@@ -95,7 +95,14 @@ def reject_shop(request, shop_id):
                 product=None,
                 reason=form.cleaned_data.get('reason')
             )
-        return redirect('moderation:moderation_shop')
+        ModerationHistory.objects.filter(shop=shop).exclude(product=None).update(
+                reason='Статус магазина: Отклонено'
+            )
+        for product in shop.shop_in_product.all():
+            product.status = 'Reject'
+            product.save()
+
+        return redirect('moderation:moderation_history')
 
     context = {
         'shop': shop,
@@ -135,6 +142,9 @@ def accept_product(request, product_id):
     """
 
     product = get_object_or_404(Product, id=product_id)
+    if product.shop.status == 'Reject':
+        return redirect('shop:index')
+
     product.status = 'Accept'
     product.save()
     if ModerationHistory.objects.filter(product=product).exists():
