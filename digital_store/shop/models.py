@@ -2,19 +2,19 @@ from django.db import models
 
 from users.models import User
 
-
-class Shop(models.Model):
-    """
-    Модель магазина
-    """
-
-    SHOP_STATUS = (
+PRODUCT_AND_SHOP_STATUS = (
         ('Accept', 'Одобрено'),
         ('Reject', 'Отклонено'),
         ('In_Consideration', 'В рассмотрении'),
     )
 
-    DEFAULT_STATUS = SHOP_STATUS[-1][0]
+DEFAULT_STATUS = PRODUCT_AND_SHOP_STATUS[-1][0]
+
+
+class Shop(models.Model):
+    """
+    Модель магазина
+    """
 
     name = models.CharField(
         max_length=128,
@@ -42,7 +42,7 @@ class Shop(models.Model):
     )
     status = models.CharField(
         max_length=32,
-        choices=SHOP_STATUS,
+        choices=PRODUCT_AND_SHOP_STATUS,
         default=DEFAULT_STATUS,
     )
 
@@ -73,12 +73,6 @@ class Product(models.Model):
     Модель продукта
     """
 
-    PRODUCT_STATUS = (
-        ('Reject', 'Отклонено'),
-        ('Accept', 'Принято'),
-        ('In_Consideration', 'В рассмотрении'),
-    )
-    DEFAULT_STATUS = PRODUCT_STATUS[-1][0]
     # @staticmethod
     # def get_default_category():
     #     default_category = Category.objects.get(name='default')
@@ -122,7 +116,7 @@ class Product(models.Model):
     )
     status = models.CharField(
         max_length=32,
-        choices=PRODUCT_STATUS,
+        choices=PRODUCT_AND_SHOP_STATUS,
         default=DEFAULT_STATUS,
     )
     created_date = models.DateTimeField(
