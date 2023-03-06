@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %} Модерация магазинов {% endblock title %}
+{% block content %}
+  <main>
+    <section class="py-5 text-center container">
+      <div class="row py-lg-5">
+        <div class="col-lg-6 col-md-8 mx-auto">
+          <h1 class="fw-light">Модерация магазинов</h1>
+          <h4 class="text-muted">Модератор, будь внимателен!</h4>
+          <div class="container" style="margin-top: 20px">
+          </div>
+        </div>
+      </div>
+    </section>
+    <div class="album py-5 bg-light" style="margin:auto;width:60%">
+      <div class="container" style="width:90%">
+        <div class="row">
+          {% if shops %}
+            {% for shop in shops %}
+              {% include 'includes/shop_card.html' %}
+              {% if forloop.last %}
+              {% else %}
+                <hr style="margin-top:10px"></hr>
+              {% endif %}
+            {% endfor %}
+          {% else%}
+            <h3 class='text-center'>На данный момент список пуст</h3>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </main>
+{% endblock content %}
