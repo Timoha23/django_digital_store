@@ -1,9 +1,33 @@
+from functools import wraps
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 
 from digital_store.settings import MEDIA_ROOT
 from .models import Shop, Product, Item
 from .forms import ShopForm, ProductForm, ItemForm
+
+
+def owner_required(func):
+    @wraps(func)
+    def wrapper(request, *args, **kwargs):
+        if 'shop_id' in kwargs:
+            if request.user.is_authenticated:
+                shop = get_object_or_404(Shop, id=kwargs.get('shop_id'))
+                if request.user == shop.owner:
+                    return func(request, *args, **kwargs)
+        elif 'product_id' in kwargs:
+            if request.user.is_authenticated:
+                product = get_object_or_404(Product, id=kwargs.get('product_id'))
+                if request.user == product.shop.owner:
+                    return func(request, *args, **kwargs)
+        elif 'item_id' in kwargs:
+            if request.user.is_authenticated:
+                item = get_object_or_404(Item, id=kwargs.get('item_id'))
+                if request.user == item.product.shop.owner:
+                    return func(request, *args, **kwargs)
+        return redirect('shop:index')
+    return wrapper
 
 
 def index(request):
@@ -30,7 +54,7 @@ def shop(request, shop_id):
     """
 
     shop = get_object_or_404(Shop, id=shop_id)
-    products = Product.objects.filter(shop=shop)
+    products = Product.objects.filter(shop=shop, status='Accept')
 
     context = {
         'shop': shop,
@@ -136,6 +160,7 @@ def create_shop(request):
     )
 
 
+@owner_required
 def edit_shop(request, shop_id):
     """
     Редактирование магазина
@@ -144,8 +169,7 @@ def edit_shop(request, shop_id):
     form = ShopForm(request.POST or None,
                     files=request.FILES or None,
                     instance=shop)
-    if shop.owner != request.user:
-        return redirect('shop:index')
+
     if form.is_valid():
         form.save()
         shop.status = 'In_Consideration'
@@ -185,6 +209,7 @@ def user_shops(request):
     )
 
 
+@owner_required
 def delete_shop(request, shop_id):
     """
     Удаление магазина юзером
@@ -195,6 +220,7 @@ def delete_shop(request, shop_id):
     return redirect('shop:index')
 
 
+@owner_required
 def create_product(request, shop_id):
     """
     Создание подукта
@@ -206,7 +232,7 @@ def create_product(request, shop_id):
     shop = get_object_or_404(Shop, id=shop_id)
 
     if shop.status != 'Accept':
-            return redirect('shop:shop', shop_id)
+        return redirect('shop:shop', shop_id)
 
     if form.is_valid():
         product = form.save(commit=False)
@@ -227,6 +253,7 @@ def create_product(request, shop_id):
     )
 
 
+@owner_required
 def edit_product(request, shop_id, product_id):
     """
     Редактирование продукта
@@ -237,8 +264,6 @@ def edit_product(request, shop_id, product_id):
                        files=request.FILES or None,
                        instance=product)
 
-    if product.shop.owner != request.user:
-        return redirect('shop:index')
     if form.is_valid():
         form.save()
         product.status = 'In_Consideration'
@@ -257,6 +282,7 @@ def edit_product(request, shop_id, product_id):
     )
 
 
+@owner_required
 def delete_product(request, product_id):
     """
     Удаление продукта
@@ -264,12 +290,11 @@ def delete_product(request, product_id):
 
     product = get_object_or_404(Product, id=product_id)
 
-    if product.shop.owner == request.user:
-        product.delete()
-        return redirect('shop:shop', product.shop.id)
-    return redirect('shop:index')
+    product.delete()
+    return redirect('shop:shop', product.shop.id)
 
 
+@owner_required
 def create_item(request, product_id):
     """
     Добавление товара в продукт
@@ -298,6 +323,7 @@ def create_item(request, product_id):
     )
 
 
+@owner_required
 def delete_item(request, item_id):
     """
     Удаление товара из продукта
@@ -305,9 +331,7 @@ def delete_item(request, item_id):
 
     item = get_object_or_404(Item, id=item_id)
     product = item.product
-    if item.product.shop.owner == request.user:
-        product.count -= 1
-        product.save()
-        item.delete()
-        return redirect('shop:product', item.product.id)
-    return redirect('shop:index')
+    product.count -= 1
+    product.save()
+    item.delete()
+    return redirect('shop:product', item.product.id)
