@@ -29,6 +29,38 @@
     {% endif %}
     <div class="container" style="margin-top:50px;width:600px">
       <h3 class="text-center">Отзывы</h3>
-      {% include 'includes/review.html' %}
+      {% for review in page_obj %}
+        {% include 'includes/review.html' %}
+        {% if forloop.last %}
+        {% else %}
+          <hr style="margin-top:10px"></hr>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <div>
+      <form method="post" enctype="multipart/form-data" action="{% url 'review:review_add' product.id %}">
+        {% csrf_token %}
+          {% for field in review_form %}           
+            <div class="form-group row my-3 p-3">
+              <label for="{{ field.id_for_label }}">
+                {{ field.label }}
+                {% if field.field.required %}                  
+                  <span class="required text-danger" >*</span>
+                {% endif %}                  
+              </label>
+              {{ field }}
+              {% if field.help_text %}             
+                <small id="id_text-help" class="form-text text-muted">
+                  {{ field.help_text }}
+                </small>
+              {% endif %}                  
+            </div>
+          {% endfor %}            
+          <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary">
+                Добавить
+            </button>
+          </div>
+      </form>
     </div>
 {% endblock %}
