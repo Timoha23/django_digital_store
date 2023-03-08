@@ -33,6 +33,8 @@ INSTALLED_APPS = [
     'shop.apps.ShopConfig',
     'users.apps.UsersConfig',
     'core.apps.CoreConfig',
+    'reviews.apps.ReviewsConfig',
+    'cart.apps.CartConfig',
     'sorl.thumbnail',
     'moderation.apps.ModerationConfig',
     'debug_toolbar',
