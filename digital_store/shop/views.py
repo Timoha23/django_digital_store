@@ -6,6 +6,8 @@ from django.core.paginator import Paginator
 
 from digital_store.settings import MEDIA_ROOT
 from moderation.models import ModerationHistory
+from reviews.models import Review
+from reviews.forms import ReviewForm
 from .models import Shop, Product, Item
 from .forms import ShopForm, ProductForm, ItemForm
 
@@ -46,6 +48,9 @@ def get_context_paginator(queryset, request, is_products=None):
     return {
         'page_obj': page_obj,
     }
+
+
+###############################################################
 
 
 def index(request):
@@ -113,16 +118,24 @@ def product(request, product_id):
     """
     Страница продукта
     """
+
     product = get_object_or_404(Product, pk=product_id)
     shop = Shop.objects.get(shop_in_product=product_id)
     items = Item.objects.filter(product=product)
+    reviews = Review.objects.filter(product=product)
+
+    review_form = ReviewForm()
 
     context = {
         'shop': shop,
         'product': product,
         'items': items,
+        'reviews': reviews,
+        'review_form': review_form,
         'items_exists': items.exists(),
     }
+
+    context.update(get_context_paginator(reviews, request))
 
     return render(
         request,
