@@ -21,7 +21,7 @@
             {% if request.resolver_match.view_name != 'shop:product' %}
               <a href="{% url 'shop:product' product.id %}" class="btn btn-sm btn-outline-secondary">Смотреть</a>
             {% endif %}
-            <button type="button" class="btn btn-sm btn-outline-secondary">В корзину</button>
+            <a href="{% url 'cart:add_to_cart' product.id %}" class="btn btn-sm btn-outline-secondary">В корзину</a>
           {% endif %}
         </div>
         <small class="text-muted">{{ product.created_date }}</small>
