@@ -121,7 +121,7 @@ def product(request, product_id):
 
     product = get_object_or_404(Product, pk=product_id)
     shop = Shop.objects.get(shop_in_product=product_id)
-    items = Item.objects.filter(product=product)
+    items = Item.objects.filter(product=product, status='sale')
     reviews = Review.objects.filter(product=product)
 
     review_form = ReviewForm()

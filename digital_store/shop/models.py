@@ -10,6 +10,11 @@ PRODUCT_AND_SHOP_STATUS = (
 
 DEFAULT_STATUS = PRODUCT_AND_SHOP_STATUS[-1][0]
 
+ITEM_STATUS = (
+    ('in_cart', 'В корзине'),
+    ('sold', 'Продан'),
+    ('sale', 'Продается')
+)
 
 class Shop(models.Model):
     """
@@ -136,7 +141,7 @@ class Item(models.Model):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name='product_in_item',
+        related_name='item',
         verbose_name='Продукт',
     )
     item = models.CharField(
@@ -147,6 +152,16 @@ class Item(models.Model):
         auto_now_add=True,
         verbose_name='Дата создания'
     )
+
+    status = models.CharField(
+        default='sale',
+        max_length=32,
+        choices=ITEM_STATUS,
+        verbose_name='Статус товара',
+    )
+
+    def __str__(self):
+        return self.item[:5]
 
 
 class BrowsingHistory(models.Model):

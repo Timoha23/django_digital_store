@@ -17,7 +17,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 
 class ItemAdmin(admin.ModelAdmin):
-    list_display = ('id', 'product', 'item', 'created_date')
+    list_display = ('id', 'product', 'item', 'status', 'created_date')
 
 
 class CategoryAdmin(admin.ModelAdmin):
