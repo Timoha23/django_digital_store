@@ -216,7 +216,7 @@ def reject_product(request, product_id):
                 moderator=request.user,
                 shop=product.shop,
                 product=product,
-                reason=None,
+                reason=form.cleaned_data.get('reason'),
             )
         return redirect('moderation:moderation_history')
 

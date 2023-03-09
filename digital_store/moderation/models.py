@@ -17,19 +17,19 @@ class ModerationHistory(models.Model):
     moderator = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='moderator_in_moderation_history',
+        related_name='moderation',
         verbose_name='Модератор',
     )
     shop = models.ForeignKey(
         Shop,
         on_delete=models.CASCADE,
-        related_name='shop_in_moderation_history',
+        related_name='moderation',
         verbose_name='Магазин',
     )
     product = models.ForeignKey(
         Product,
         on_delete=models.SET_NULL,
-        related_name='product_in_moderation_history',
+        related_name='moderation',
         verbose_name='Продукт',
         null=True,
         default=None,
