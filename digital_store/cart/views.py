@@ -15,7 +15,7 @@ def add_to_cart(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
     product_in_user_cart = get_or_none(Cart, product=product)
 
-    if len(product.item.all()) == 0:
+    if len(product.item.filter(status='sale').all()) == 0:
         return redirect('shop:index')
     item = Item.objects.filter(product=product, status='sale').first()
 
