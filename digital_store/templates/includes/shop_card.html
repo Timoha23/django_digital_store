@@ -1,47 +1,43 @@
 {% load thumbnail %}
+{% load static %}
 <div class="card" style="padding:0;">
-  {% comment %} {% if shop.image %}
-    {% with image=shop.image %}
-      {% thumbnail image "960x339" crop="center" upscale=TRUE as im %}
-        <img class="card-img top" src="{{ im.url }}">
-      {% endthumbnail %}
-    {% endwith %}
-  {% else %}
-    {% with image=default_image %}
-      {% thumbnail image "960x339" crop="center" upscale=TRUE as im %}
-        <img class="card-img top" src="{{ im.url }}">
-      {% endthumbnail %}
-    {% endwith %} {% endcomment %}
-    {% comment %} {% endif %} {% endcomment %}
     {% if shop.image %}
-      {% thumbnail shop.image "960x500" crop="center" upscale=TRUE as im %}
-        <img class="card-img top" src="{{ im.url }}">
+      {% thumbnail shop.image "500x250" crop="center" upscale=TRUE as im %}
+        <img class="shop-img" src="{{ im.url }}">
       {% endthumbnail %}
+    {% else %}
+      <img class="shop-img-default" src="{% static 'img/default/shop.webp' %}">
     {% endif %}
-  
-  <div class="card-header">
-    {{ shop.name }}
-  </div>
   <div class="card-body">
-    <h5 class="card-title">Средний рейтинг магазина</h5>
+    <h3 class="card-title">{{ shop.name }}</h3>
+    <hr class="hr-dashed-gradient"></hr>
+    <h5 class="card-title">Средний рейтинг магазина: 4/5⭐</h5>
+    <p class="card-text">Описание: {{ shop.description }}</p>
     {% if request.resolver_match.view_name == 'shop:user_shops' %}
-      <h4>Информация по статусу магазина</h4>
-      <h5 class="card-title">Статус: {{ shop.get_status_display }}</h5>
-      {% if shop.shop_in_moderation_history.first.reason %}
-        <h6 class="card-text"> Причина: {{ shop.shop_in_moderation_history.first.reason }} </h6>
+      {% if shop.status == 'Accept' %}
+        <h5 class="accept">Статус магазина: {{ shop.get_status_display }}
+          <i class="fa-sharp fa-solid fa-circle fa-2xs"></i>
+        </h5>
+      {% elif shop.status == 'Reject' %}
+        <h5 class="reject">Статус магазина: {{ shop.get_status_display }}
+          <i class="fa-sharp fa-solid fa-circle fa-2xs"></i>
+        </h5>
+      {% else %}
+        <h5 class="in_consideration">Статус магазина: {{ shop.get_status_display }}
+          <i class="fa-sharp fa-solid fa-circle fa-2xs"></i>
+        </h5>
       {% endif %}
     {% endif %}
-    <p class="card-text">{{ shop.description }}</p>
     <hr></hr>
     <div class="text-center">
       {% if request.resolver_match.view_name == 'moderation:moderation_shop' %}
         <a href="{% url 'moderation:accept_shop' shop.id %}" class="btn btn-outline-success">Одобрить</a>
         <a href="{% url 'moderation:reject_shop' shop.id %}" class="btn btn-outline-danger">Отклонить</a>
       {% else %}
-        <a href="{% url 'shop:shop' shop.pk %}" class="btn btn-primary">Перейти в магазин</a>
+        <a href="{% url 'shop:shop' shop.pk %}" class="btn btn-outline-secondary">Перейти в магазин</a>
         {% if request.user == shop.owner %}
-          <a href="{% url 'shop:edit_shop' shop.pk %}" class="btn btn-primary">Редактировать магазин</a>
-          <a href="{% url 'shop:delete_shop' shop.pk %}" class="btn btn-primary">Удалить магазин</a>
+          <a href="{% url 'shop:edit_shop' shop.pk %}" class="btn btn-outline-secondary">Редактировать магазин</a>
+          <a href="{% url 'shop:delete_shop' shop.pk %}" class="btn btn-outline-secondary">Удалить магазин</a>
         {% endif %}
       {% endif %}
     </div>
