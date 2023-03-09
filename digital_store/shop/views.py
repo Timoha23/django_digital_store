@@ -1,10 +1,11 @@
 from functools import wraps
 
+from django.db.models import Avg
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 
-from digital_store.settings import MEDIA_ROOT
+from digital_store.settings import MEDIA_ROOT, STATICFILES_DIRS
 from moderation.models import ModerationHistory
 from reviews.models import Review
 from reviews.forms import ReviewForm
@@ -58,12 +59,17 @@ def index(request):
     Главная страница проекта
     """
 
-    products = Product.objects.filter(status='Accept', visibile=True).order_by('-created_date')[:9]
+    products = (Product.objects.filter(status='Accept', visibile=True)
+                .order_by('-created_date')[:9]
+                .select_related('shop__owner')
+                .prefetch_related('category')
+                .prefetch_related('review')
+                .annotate(avg_rating=Avg('review__rating'))
+                )
 
     context = {
         'products': products,
     }
-
 
     return render(
         request,
@@ -79,10 +85,24 @@ def shop(request, shop_id):
 
     shop = get_object_or_404(Shop, id=shop_id)
     if request.user == shop.owner:
-        products = Product.objects.filter(shop=shop)
+        # products = Product.objects.filter(shop=shop
+        #                                   ).select_related('shop__owner'
+        #                                   ).prefetch_related(Prefetch('moderation', queryset=ModerationHistory.objects.all().distinct('product')))
+        products = (Product.objects.filter(shop=shop)
+                    .select_related('shop__owner')
+                    .prefetch_related('category')
+                    .prefetch_related('review')
+                    .annotate(avg_rating=Avg('review__rating'))
+                    )
+
     else:
-        products = Product.objects.filter(shop=shop, status='Accept', 
-                                          visibile=True)
+        products = (Product.objects.filter(shop=shop,
+                                           status='Accept', visibile=True)
+                    .select_related('shop__owner')
+                    .prefetch_related('category')
+                    .prefetch_related('review')
+                    .annotate(avg_rating=Avg('review__rating'))
+                    )
 
     context = {
         'shop': shop,
@@ -123,7 +143,6 @@ def product(request, product_id):
     shop = Shop.objects.get(shop_in_product=product_id)
     items = Item.objects.filter(product=product, status='sale')
     reviews = Review.objects.filter(product=product)
-
     review_form = ReviewForm()
 
     context = {
@@ -149,10 +168,14 @@ def product_list(request):
     Страница со всеми продуктами
     """
 
-    products = Product.objects.filter(status='Accept')
+    products = (Product.objects.filter(status='Accept')
+                .select_related('shop__owner')
+                .prefetch_related('category')
+                .prefetch_related('review')
+                .annotate(avg_rating=Avg('review__rating'))
+                )
 
     context = {
-        'products': products,
     }
 
     context.update(get_context_paginator(products, request, is_products=True))
@@ -182,11 +205,6 @@ def create_shop(request):
                     files=request.FILES or None)
     if form.is_valid():
         shop = form.save(commit=False)
- 
-        # ПЕРЕДЕЛАТЬ
-        if shop.image._file is None:
-            shop.image = MEDIA_ROOT + 'img/default/shop.jpg'
-
         shop.owner = request.user
         shop.save()
         return redirect('shop:index')

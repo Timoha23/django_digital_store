@@ -33,6 +33,7 @@ class Shop(models.Model):
         related_name='owner',
     )
     image = models.ImageField(
+        default=None,
         upload_to='shop',
         verbose_name='Изображение',
         blank=True,
@@ -103,6 +104,7 @@ class Product(models.Model):
         verbose_name='Категория',
     )
     image = models.ImageField(
+        default=None,
         upload_to='shop/product/',
         verbose_name='Изображение',
         blank=True,
