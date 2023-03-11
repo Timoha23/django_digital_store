@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from digital_store.settings import STAFF_ROLES
 from shop.models import Shop, Product
-from .models import ModerationHistory
+from .models import AcceptRejectList
 from .forms import RejectForm
 
 
@@ -65,8 +65,8 @@ def accept_shop(request, shop_id):
     shop.status = 'Accept'
     shop.save()
 
-    if ModerationHistory.objects.filter(shop=shop, product=None).exists():
-        ModerationHistory.objects.filter(shop=shop, product=None).update(
+    if AcceptRejectList.objects.filter(shop=shop, product=None).exists():
+        AcceptRejectList.objects.filter(shop=shop, product=None).update(
             type='shop',
             moderator=request.user,
             shop=shop,
@@ -75,7 +75,7 @@ def accept_shop(request, shop_id):
             update_date=timezone.now(),
         )
     else:
-        ModerationHistory.objects.create(
+        AcceptRejectList.objects.create(
             type='shop',
             moderator=request.user,
             shop=shop,
@@ -98,8 +98,8 @@ def reject_shop(request, shop_id):
     if form.is_valid():
         shop.status = 'Reject'
         shop.save()
-        if ModerationHistory.objects.filter(shop=shop, product=None).exists():
-            ModerationHistory.objects.filter(shop=shop, product=None).update(
+        if AcceptRejectList.objects.filter(shop=shop, product=None).exists():
+            AcceptRejectList.objects.filter(shop=shop, product=None).update(
                 type='shop',
                 moderator=request.user,
                 shop=shop,
@@ -108,14 +108,14 @@ def reject_shop(request, shop_id):
                 update_date=timezone.now(),
             )
         else:
-            ModerationHistory.objects.create(
+            AcceptRejectList.objects.create(
                 type='shop',
                 moderator=request.user,
                 shop=shop,
                 product=None,
                 reason=form.cleaned_data.get('reason')
             )
-        ModerationHistory.objects.filter(shop=shop).exclude(product=None).update(
+        AcceptRejectList.objects.filter(shop=shop).exclude(product=None).update(
                 reason='Статус магазина: Отклонено'
             )
         for product in shop.shop_in_product.all():
@@ -169,8 +169,8 @@ def accept_product(request, product_id):
 
     product.status = 'Accept'
     product.save()
-    if ModerationHistory.objects.filter(product=product).exists():
-        ModerationHistory.objects.filter(product=product).update(
+    if AcceptRejectList.objects.filter(product=product).exists():
+        AcceptRejectList.objects.filter(product=product).update(
             type='product',
             moderator=request.user,
             shop=product.shop,
@@ -179,7 +179,7 @@ def accept_product(request, product_id):
             update_date=timezone.now(),
         )
     else:
-        ModerationHistory.objects.create(
+        AcceptRejectList.objects.create(
             type='product',
             moderator=request.user,
             shop=product.shop,
@@ -201,8 +201,8 @@ def reject_product(request, product_id):
     if form.is_valid():
         product.status = 'Reject'
         product.save()
-        if ModerationHistory.objects.filter(product=product).exists():
-            ModerationHistory.objects.filter(product=product).update(
+        if AcceptRejectList.objects.filter(product=product).exists():
+            AcceptRejectList.objects.filter(product=product).update(
                 type='product',
                 moderator=request.user,
                 shop=product.shop,
@@ -211,7 +211,7 @@ def reject_product(request, product_id):
                 update_date=timezone.now(),
             )
         else:
-            ModerationHistory.objects.create(
+            AcceptRejectList.objects.create(
                 type='product',
                 moderator=request.user,
                 shop=product.shop,
@@ -238,12 +238,15 @@ def moderation_history(request):
     История действий модератора
     """
 
-    history = ModerationHistory.objects.select_related('shop').select_related('product').select_related('moderator').all().order_by('update_date')
+    history = (AcceptRejectList.objects.select_related('shop')
+               .select_related('product').select_related('moderator')
+               .all().order_by('update_date')
+               )
 
     context = {
         'history': history,
     }
-    
+
     context.update(get_context_paginator(history, request))
     return render(
         request,

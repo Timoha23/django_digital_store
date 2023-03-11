@@ -4,7 +4,7 @@ from shop.models import Shop, Product
 from users.models import User
 
 
-class ModerationHistory(models.Model):
+class AcceptRejectList(models.Model):
     TYPE_MODERATION = (
         ('shop', 'Магазин'),
         ('product', 'Продукт'),
@@ -26,7 +26,7 @@ class ModerationHistory(models.Model):
         related_name='moderation',
         verbose_name='Магазин',
     )
-    product = models.ForeignKey(
+    product = models.OneToOneField(
         Product,
         on_delete=models.SET_NULL,
         related_name='moderation',

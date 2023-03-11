@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import ModerationHistory
+from .models import AcceptRejectList
 
 
 class ModerationHistoryAdmin(admin.ModelAdmin):
@@ -8,4 +8,4 @@ class ModerationHistoryAdmin(admin.ModelAdmin):
                     'update_date', 'created_date')
 
 
-admin.site.register(ModerationHistory, ModerationHistoryAdmin)
+admin.site.register(AcceptRejectList, ModerationHistoryAdmin)
