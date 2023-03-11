@@ -1,12 +1,13 @@
 from functools import wraps
 
+from django.http import Http404
 from django.db.models import Avg
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 
-from digital_store.settings import MEDIA_ROOT, STATICFILES_DIRS
-from moderation.models import ModerationHistory
+from digital_store.settings import STAFF_ROLES
+from moderation.models import AcceptRejectList
 from reviews.models import Review
 from reviews.forms import ReviewForm
 from .models import Shop, Product, Item
@@ -38,7 +39,7 @@ def owner_required(func):
     return wrapper
 
 
-def get_context_paginator(queryset, request, is_products=None):
+def get_context_paginator(queryset, request, is_products=False):
     if is_products:
         count_posts = 9
     else:
@@ -84,10 +85,17 @@ def shop(request, shop_id):
     """
 
     shop = get_object_or_404(Shop, id=shop_id)
+
+    # проверка статуса магазина
+    if shop.status != 'Accept':
+        if request.user.is_authenticated is True:
+            if (request.user != shop.owner or
+                request.user.role not in STAFF_ROLES):
+                raise Http404
+        else:
+            raise Http404
+
     if request.user == shop.owner:
-        # products = Product.objects.filter(shop=shop
-        #                                   ).select_related('shop__owner'
-        #                                   ).prefetch_related(Prefetch('moderation', queryset=ModerationHistory.objects.all().distinct('product')))
         products = (Product.objects.filter(shop=shop)
                     .select_related('shop__owner')
                     .prefetch_related('category')
@@ -120,7 +128,7 @@ def shop_list(request):
     Страница со всеми магазинами
     """
 
-    shops = Shop.objects.filter(status='Accept')
+    shops = Shop.objects.filter(status='Accept').order_by('-created_date')
 
     context = {
         'shops': shops,
@@ -139,11 +147,20 @@ def product(request, product_id):
     Страница продукта
     """
 
-    product = get_object_or_404(Product, pk=product_id)
+    product = get_object_or_404(Product.objects.select_related('shop__owner'),
+                                pk=product_id)
     shop = Shop.objects.get(shop_in_product=product_id)
     items = Item.objects.filter(product=product, status='sale')
-    reviews = Review.objects.filter(product=product)
+    reviews = Review.objects.filter(product=product).order_by('-created_date')
     review_form = ReviewForm()
+
+    if product.status != 'Accept':
+        if request.user.is_authenticated is True:
+            if (request.user != shop.owner or
+                request.user.role not in STAFF_ROLES):
+                raise Http404
+        else:
+            raise Http404
 
     context = {
         'shop': shop,
@@ -173,6 +190,7 @@ def product_list(request):
                 .prefetch_related('category')
                 .prefetch_related('review')
                 .annotate(avg_rating=Avg('review__rating'))
+                .order_by('-created_date')
                 )
 
     context = {
@@ -233,7 +251,7 @@ def edit_shop(request, shop_id):
         form.save()
         shop.status = 'In_Consideration'
         shop.save()
-        ModerationHistory.objects.filter(shop=shop, product=None).delete()
+        AcceptRejectList.objects.filter(shop=shop, product=None).delete()
         return redirect('shop:user_shops')
     context = {
         'edit_shop': True,
@@ -300,6 +318,7 @@ def create_product(request, shop_id):
         product.shop = shop
         product.count = 0
         product.save()
+        form.save_m2m()
         return redirect('shop:shop', shop_id)
 
     context = {
@@ -329,7 +348,7 @@ def edit_product(request, shop_id, product_id):
         form.save()
         product.status = 'In_Consideration'
         product.save()
-        ModerationHistory.objects.filter(product=product).delete()
+        AcceptRejectList.objects.filter(product=product).delete()
         return redirect('shop:shop', shop_id)
     context = {
         'edit_product': True,

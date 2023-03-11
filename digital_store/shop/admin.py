@@ -9,11 +9,14 @@ class ShopAdmin(admin.ModelAdmin):
 
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'shop', 'get_categories', 'description',
-                    'count', 'visibile', 'created_date')
+    list_display = ('id', 'name', 'shop', 'get_categories', 'get_items',
+                    'description', 'count', 'visibile', 'created_date')
 
     def get_categories(self, obj):
         return "\n".join([c.name for c in obj.category.all()])
+
+    def get_items(self, obj):
+        return "\n".join([c.item for c in obj.item.all() if c.status=='sale'])
 
 
 class ItemAdmin(admin.ModelAdmin):

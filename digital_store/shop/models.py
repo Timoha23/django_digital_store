@@ -16,6 +16,7 @@ ITEM_STATUS = (
     ('sale', 'Продается')
 )
 
+
 class Shop(models.Model):
     """
     Модель магазина
