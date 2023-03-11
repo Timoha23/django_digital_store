@@ -14,7 +14,6 @@ def review_add(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
 
     if form.is_valid():
-        print('valid')
         review = form.save(commit=False)
         review.user = request.user
         review.product = product
@@ -45,7 +44,8 @@ def reviews_shop_list(request, shop_id):
     """
 
     shop = get_object_or_404(Shop, pk=shop_id)
-    shop_reviews = Review.objects.filter(product__shop=shop).select_related('user')
+    shop_reviews = (Review.objects.filter(product__shop=shop)
+                    .select_related('user'))
 
     context = {
         'shop': shop,
