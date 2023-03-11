@@ -1,6 +1,8 @@
 import os
 
 from pathlib import Path
+
+from django.contrib import messages
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -149,3 +151,11 @@ LOGOUT_REDIRECT_URL = 'shop:index'
 CSFR_FAILURE_VIEW = 'core.views.csfr_failure'
 
 STAFF_ROLES = ('admin', 'moderator')
+
+MESSAGE_TAGS = {
+    messages.DEBUG: 'alert-info',
+    messages.INFO: 'alert-info',
+    messages.SUCCESS: 'alert-success',
+    messages.WARNING: 'alert-warning',
+    messages.ERROR: 'alert-danger',
+}
