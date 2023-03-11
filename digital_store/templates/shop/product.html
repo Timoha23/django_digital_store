@@ -5,7 +5,7 @@
     <div class="container content-center">
       {% include 'includes/card.html' %}
     </div>
-    {% if request.user == shop.owner and items_exists %}
+    {% if request.user == product.shop.owner and items_exists %}
       <div class="container" style="margin-top:50px;width:600px">
         <h3>Ваши товары:</h3>
         <table id="table1" class="table table-bordered">
