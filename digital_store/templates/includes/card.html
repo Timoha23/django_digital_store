@@ -6,7 +6,7 @@
     <div class="card shadow-sm">
       <!--Изображение товара-->
         {% if product.image %}
-          {% thumbnail product.image "410x320" crop="center" upscale=TRUE as im %}
+          {% thumbnail product.image "410x320" crop="center" as im %}
             <img class="card-img top" src="{{ im.url }}">
           {% endthumbnail %}
         {% else %}
