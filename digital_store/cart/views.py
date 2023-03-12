@@ -18,11 +18,19 @@ def add_to_cart(request, product_id):
                                 pk=product_id)
     product_in_user_cart = get_or_none(Cart, product=product)
 
-    if len(product.item.filter(status='sale').all()) == 0:
+    len_sale_products = len(product.item.filter(status='sale').all())
+
+
+    # проверка то, что юзер хочет добавить товаров больше чем их есть в наличии
+    if product_in_user_cart:
+        if len_sale_products <= product_in_user_cart.count_items:
+            messages.error(request, f'Недопустимое количество товара. В магазине всего: {len_sale_products}')
+            return redirect('shop:index')
+
+    if len_sale_products == 0:
         messages.error(request, 'Недостаточно товаров')
         return redirect('shop:index')
 
-    item = Item.objects.filter(product=product, status='sale').first()
 
     if product_in_user_cart is None:
         create_product = Cart.objects.create(
@@ -119,18 +127,18 @@ def make_order(request):
     return redirect('cart:cart')
 
 
-@login_required
-def order_list(request):
-    """
-    Отображение списка покупок
-    """
+# @login_required
+# def order_list(request):
+#     """
+#     Отображение списка покупок для юзера
+#     """
 
-    orders = (Order.objects.filter(order_history__user=request.user)
-              .distinct().prefetch_related('order_history__product')
-              .prefetch_related('order_history__product__shop')
-              )
+#     orders = (Order.objects.filter(order_history__user=request.user)
+#               .distinct().prefetch_related('order_history__product')
+#               .prefetch_related('order_history__product__shop')
+#               )
 
-    context = {
-        'orders': orders,
-    }
-    return render(request, context=context, template_name='cart/orders.html')
+#     context = {
+#         'orders': orders,
+#     }
+#     return render(request, context=context, template_name='cart/orders.html')

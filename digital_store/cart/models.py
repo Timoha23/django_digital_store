@@ -107,6 +107,11 @@ class OrderHistory(models.Model):
         verbose_name='Количество',
     )
 
+    review = models.BooleanField(
+        default=False,
+        verbose_name='Отзыв оставлен',
+    )
+
     updated_date = models.DateTimeField(
         auto_now=True,
         verbose_name='Дата редактирования',
