@@ -1,23 +1,42 @@
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-
+ 
+from cart.models import OrderHistory
 from shop.models import Product, Shop
 from shop.views import get_context_paginator
 from .models import Review
 from .forms import ReviewForm
 
 
+@login_required
 def review_add(request, product_id):
     """
     Добавление отзыва к продукту
     """
-    form = ReviewForm(request.POST)
+
     product = get_object_or_404(Product, pk=product_id)
+
+    product_in_order = OrderHistory.objects.filter(
+        product=product, user=request.user, review=False
+        ).order_by('created_date').first()
+
+    if product_in_order is None:
+        messages.error(request, 'Вы не можете оставить отзыв. Либо вы'
+                       ' его уже оставили, либо еще не приобрели товар.')
+        return redirect('shop:product', product.id)
+
+    form = ReviewForm(request.POST)
 
     if form.is_valid():
         review = form.save(commit=False)
         review.user = request.user
         review.product = product
         review.save()
+        product_in_order.review = True
+        product_in_order.save()
+
         return redirect('shop:product', product.id)
     return redirect('shop:index')
 
