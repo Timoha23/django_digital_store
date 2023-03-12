@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 
+from cart.models import OrderHistory
 from digital_store.settings import STAFF_ROLES
 from moderation.models import AcceptRejectList
 from reviews.models import Review
@@ -60,7 +61,8 @@ def index(request):
     Главная страница проекта
     """
 
-    products = (Product.objects.filter(status='Accept', visibile=True)
+    products = (Product.objects.filter(status='Accept', visibile=True,
+                                       is_available=True)
                 .order_by('-created_date')[:9]
                 .select_related('shop__owner')
                 .prefetch_related('category')
@@ -84,7 +86,9 @@ def shop(request, shop_id):
     Страница магазина
     """
 
-    shop = get_object_or_404(Shop, id=shop_id)
+    shop = get_object_or_404(
+        Shop.objects.annotate(avg_rating=Avg('shop_in_product__review__rating')),
+        id=shop_id)
 
     # проверка статуса магазина
     if shop.status != 'Accept':
@@ -110,6 +114,8 @@ def shop(request, shop_id):
                     .prefetch_related('category')
                     .prefetch_related('review')
                     .annotate(avg_rating=Avg('review__rating'))
+                    .order_by('-created_date')
+                    .order_by('-is_available')
                     )
 
     context = {
@@ -128,7 +134,10 @@ def shop_list(request):
     Страница со всеми магазинами
     """
 
-    shops = Shop.objects.filter(status='Accept').order_by('-created_date')
+    shops = (Shop.objects.filter(status='Accept')
+             .select_related('owner')
+             .annotate(avg_rating=Avg('shop_in_product__review__rating'))
+             .order_by('-created_date'))
 
     context = {
         'shops': shops,
@@ -147,11 +156,16 @@ def product(request, product_id):
     Страница продукта
     """
 
-    product = get_object_or_404(Product.objects.select_related('shop__owner'),
-                                pk=product_id)
+    product = get_object_or_404(
+        Product.objects.select_related('shop__owner').annotate(
+            avg_rating=Avg('review__rating')),
+        pk=product_id)
+
     shop = Shop.objects.get(shop_in_product=product_id)
     items = Item.objects.filter(product=product, status='sale')
-    reviews = Review.objects.filter(product=product).order_by('-created_date')
+    reviews = (Review.objects.filter(product=product)
+               .select_related('user')
+               .order_by('-created_date'))
     review_form = ReviewForm()
 
     if product.status != 'Accept':
@@ -162,6 +176,13 @@ def product(request, product_id):
         else:
             raise Http404
 
+    if request.user.is_authenticated:
+        can_review = OrderHistory.objects.filter(
+            product=product,
+            user=request.user,
+            review=False
+        )
+
     context = {
         'shop': shop,
         'product': product,
@@ -169,6 +190,7 @@ def product(request, product_id):
         'reviews': reviews,
         'review_form': review_form,
         'items_exists': items.exists(),
+        'can_review': can_review,
     }
 
     context.update(get_context_paginator(reviews, request))
@@ -191,6 +213,7 @@ def product_list(request):
                 .prefetch_related('review')
                 .annotate(avg_rating=Avg('review__rating'))
                 .order_by('-created_date')
+                .order_by('-is_available')
                 )
 
     context = {
@@ -271,13 +294,14 @@ def user_shops(request):
     Просмотр магазинов для владельца
     """
 
-    shops = Shop.objects.select_related('owner').filter(owner=request.user)
-    # default_image = STATICFILES_DIRS[0] + 'img/defautl/shop.img'
+    shops = (Shop.objects.select_related('owner')
+             .filter(owner=request.user)
+             .annotate(avg_rating=Avg('shop_in_product__review__rating')))
 
     context = {
         'shops': shops,
         'shops_exists': shops.exists(),
-        # 'default_image': default_image,
+
     }
 
     context.update(get_context_paginator(shops, request))

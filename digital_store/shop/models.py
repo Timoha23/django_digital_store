@@ -127,10 +127,22 @@ class Product(models.Model):
         choices=PRODUCT_AND_SHOP_STATUS,
         default=DEFAULT_STATUS,
     )
+    is_available = models.BooleanField(
+        default=False,
+        verbose_name='В наличии'
+    )
     created_date = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Дата создания',
     )
+
+    def save(self, *args, **kwargs):
+        print(self.count)
+        if self.count > 0:
+            self.is_available = True
+        else:
+            self.is_available = False
+        super(Product, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.name
