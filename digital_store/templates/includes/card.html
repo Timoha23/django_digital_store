@@ -1,103 +1,113 @@
 {% load thumbnail %}
 {% load static %}
 {% comment %} <div class="product-link"> {% endcomment %}
-<div class="col">
-  <div class="box-with-shadow">
-    <div class="card shadow-sm">
-      <!--Изображение товара-->
-        {% if product.image %}
-          {% thumbnail product.image "410x320" crop="center" as im %}
-            <img class="card-img top" src="{{ im.url }}">
-          {% endthumbnail %}
-        {% else %}
-            <img alt="" src="{% static 'img/default/product.jpg' %}" width="100%" class="frame2">
-        {% endif %}
-      <!---->
-      <div class="card-body">
-        <a href="{% url 'shop:product' product.id %}" class="stretched-link"></a>
-        <h5 class="card-title">{{ product.name }}</h5>
-        <h6 class="card-title">Магазин: {{ product.shop.name }}</h6>
-        {% if product.avg_rating %}
-          <p>Рейтинг товара: {{ product.avg_rating|floatformat:"0" }}/5⭐</p>
-        {% else %}
-          <p>Рейтинг товара: отзывов нет</p>
-        {% endif %}
-        <div class="row row-cols-auto">
-          {% for category in product.category.all %}
-            <div class="col" style="z-index:2; position: relative;">
-              <a href="{% url 'shop:index' %}" class="btn btn-light btn-custom-category">
-                {{ category.name }}
-              </a>
-            </div>
-          {% endfor %}
-        </div>
-        <div class="row">
-          <div class="col">
-            <p class="card-text">{{ product.description }}</p>
-          </div>
-          <div class="col text-end">
-            <small class="text-muted">{{ product.created_date }}</small>
-          </div>
-        </div>
-        {% if product.shop.owner != request.user %}
-          <hr class="hr-dashed-gradient"></hr>
-          <div style="z-index:2; position: relative;">
-            <div class="btn-group justify-content-start">
-                <a href="{% url 'cart:add_to_cart' product.id %}">
-                  <button style="position: relative" type="button" class="btn btn-success btn-sm me-1 mb-2" data-mdb-toggle="tooltip" title="В корзину">
-                    <i class="fa-sharp fa-solid fa-basket-shopping"></i>
-                  </button>
-                </a>
-            </div>
-          </div>
-        {% endif %}
-        {% if request.resolver_match.view_name == 'moderation:moderation_product' %}
-          <div class="text-center" style="z-index:2; position: relative;">
-            <a href="{% url 'moderation:accept_product' product.id %}" class="btn btn-outline-success">Одобрить</a>
-            <a href="{% url 'moderation:reject_product' product.id %}" class="btn btn-outline-danger">Отклонить</a>
-          </div>
-        {% else %}
-        <!--Плашка для владельца магазина-->
-          {% if product.shop.owner == request.user %}
-            <div>
-              <hr></hr>
-              <h5>Информация для владельца:</h3>
-                {% if product.visibile == True %}
-                  <p class="accept">Видимость товара: {{ product.visibile }}
-                    <i class="fa-sharp fa-solid fa-circle fa-2xs"></i>
-                  </p>
-                {% else %}
-                  <p class="reject">Видимость товара: <i class="fa-sharp fa-solid fa-circle"></i>{{ product.visibile }}
-                    <i class="fa-sharp fa-solid fa-circle fa-2xs"></i>
-                  </p>
-                {% endif %}
-                {% if product.status == 'Accept' %}
-                  <p class="accept">Статус товара: {{ product.get_status_display }}
-                    <i class="fa-sharp fa-solid fa-circle fa-2xs"></i>
-                  </p>
-                {% elif product.status == 'Reject' %}
-                  <p class="reject">Статус товара: {{ product.get_status_display }}
-                    <i class="fa-sharp fa-solid fa-circle fa-2xs"></i>
-                  </p>
-  
-                    <p>Причина: {{ product.moderation.first.reason }}</p>
-
-                {% else %}
-                  <p class="in_consideration">Статус товара: {{ product.get_status_display }}
-                    <i class="fa-sharp fa-solid fa-circle fa-2xs"></i>
-                  </p>
-                {% endif %}
-              </div>
+{% if product.is_available is False %}
+  <div class="is_unavailable">
+{% else %}
+    <div>
+{% endif %}
+      <div class="col">
+        <div class="box-with-shadow">
+          <div class="card shadow-sm">
+            <!--Изображение товара-->
+              {% if product.image %}
+                {% thumbnail product.image "410x320" crop="center" as im %}
+                  <img class="card-img top" src="{{ im.url }}">
+                {% endthumbnail %}
+              {% else %}
+                  <img alt="" src="{% static 'img/default/product.jpg' %}" width="100%" class="frame2">
+              {% endif %}
             <!---->
-            <div class="btn-group" style="z-index:2; position: relative;">
-              <a href="{% url 'shop:create_item' product.id %}" class="btn btn-sm btn-outline-secondary">Добавить товар</a>
-              <a href="{% url 'shop:delete_product' product.id %}" class="btn btn-sm btn-outline-secondary">Удалить продукт</a>
-              <a href="{% url 'shop:edit_product' product.shop.id product.id %}" class="btn btn-sm btn-outline-secondary">Изменить продукт</a>
+            <div class="card-body">
+              <a href="{% url 'shop:product' product.id %}" class="stretched-link"></a>
+              <h5 class="card-title">{{ product.name }}</h5>
+              <h6 class="card-title">Магазин: {{ product.shop.name }}</h6>
+              {% if product.avg_rating %}
+                <p>Рейтинг товара: {{ product.avg_rating|floatformat:"0" }}/5⭐</p>
+              {% else %}
+                <p>Рейтинг товара: отзывов нет</p>
+              {% endif %}
+              <div class="row row-cols-auto">
+                {% for category in product.category.all %}
+                  <div class="col" style="z-index:2; position: relative;">
+                    <a href="{% url 'shop:index' %}" class="btn btn-light btn-custom-category">
+                      {{ category.name }}
+                    </a>
+                  </div>
+                {% endfor %}
+              </div>
+              <div class="row">
+                <div class="col">
+                  <p class="card-text">{{ product.description }}</p>
+                </div>
+                <div class="col text-end">
+                  <small class="text-muted">{{ product.created_date }}</small>
+                </div>
+              </div>
+              {% if product.shop.owner != request.user %}
+                <hr class="hr-dashed-gradient"></hr>
+                <div style="z-index:2; position: relative;">
+                  <div class="btn-group justify-content-start">
+                    {% if product.is_available %}
+                      <a href="{% url 'cart:add_to_cart' product.id %}">
+                        <button style="position: relative" type="button" class="btn btn-success btn-sm me-1 mb-2" data-mdb-toggle="tooltip" title="В корзину">
+                          <i class="fa-sharp fa-solid fa-basket-shopping"></i>
+                        </button>
+                      </a>
+                    {% else %}
+                      <span>Нет в наличии</span>
+                    {% endif %}
+                  </div>
+                </div>
+              {% endif %}
+              {% if request.resolver_match.view_name == 'moderation:moderation_product' %}
+                <div class="text-center" style="z-index:2; position: relative;">
+                  <a href="{% url 'moderation:accept_product' product.id %}" class="btn btn-outline-success">Одобрить</a>
+                  <a href="{% url 'moderation:reject_product' product.id %}" class="btn btn-outline-danger">Отклонить</a>
+                </div>
+              {% else %}
+              <!--Плашка для владельца магазина-->
+                {% if product.shop.owner == request.user %}
+                  <div>
+                    <hr></hr>
+                    <h5>Информация для владельца:</h3>
+                      {% if product.visibile == True %}
+                        <p class="accept">Видимость товара: {{ product.visibile }}
+                          <i class="fa-sharp fa-solid fa-circle fa-2xs"></i>
+                        </p>
+                      {% else %}
+                        <p class="reject">Видимость товара: <i class="fa-sharp fa-solid fa-circle"></i>{{ product.visibile }}
+                          <i class="fa-sharp fa-solid fa-circle fa-2xs"></i>
+                        </p>
+                      {% endif %}
+                      {% if product.status == 'Accept' %}
+                        <p class="accept">Статус товара: {{ product.get_status_display }}
+                          <i class="fa-sharp fa-solid fa-circle fa-2xs"></i>
+                        </p>
+                      {% elif product.status == 'Reject' %}
+                        <p class="reject">Статус товара: {{ product.get_status_display }}
+                          <i class="fa-sharp fa-solid fa-circle fa-2xs"></i>
+                        </p>
+        
+                          <p>Причина: {{ product.moderation.first.reason }}</p>
+
+                      {% else %}
+                        <p class="in_consideration">Статус товара: {{ product.get_status_display }}
+                          <i class="fa-sharp fa-solid fa-circle fa-2xs"></i>
+                        </p>
+                      {% endif %}
+                    </div>
+                  <!---->
+                  <div class="btn-group" style="z-index:2; position: relative;">
+                    <a href="{% url 'shop:create_item' product.id %}" class="btn btn-sm btn-outline-secondary">Добавить товар</a>
+                    <a href="{% url 'shop:delete_product' product.id %}" class="btn btn-sm btn-outline-secondary">Удалить продукт</a>
+                    <a href="{% url 'shop:edit_product' product.shop.id product.id %}" class="btn btn-sm btn-outline-secondary">Изменить продукт</a>
+                  </div>
+                {% endif %}
+              {% endif %}
             </div>
-          {% endif %}
-        {% endif %}
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
 {% comment %} </div> {% endcomment %}

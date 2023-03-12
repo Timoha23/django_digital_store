@@ -11,7 +11,11 @@
   <div class="card-body">
     <h3 class="card-title">{{ shop.name }}</h3>
     <hr class="hr-dashed-gradient"></hr>
-    <h5 class="card-title">Средний рейтинг магазина: 4/5⭐</h5>
+    {% if shop.avg_rating %}
+      <p>Рейтинг магазина: {{ shop.avg_rating|floatformat:"0" }}/5⭐</p>
+    {% else %}
+      <p>Рейтинг магазина: отзывов нет</p>
+    {% endif %}
     <p class="card-text">Описание: {{ shop.description }}</p>
     {% if request.resolver_match.view_name == 'shop:user_shops' %}
       {% if shop.status == 'Accept' %}

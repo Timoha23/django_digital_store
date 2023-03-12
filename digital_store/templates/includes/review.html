@@ -1,11 +1,35 @@
-<div class="card">
-  <div class="card-body py-4 mt-2">
-    <div class="d-flex justify-content-center mb-4">
-      <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(15).webp"
-        class="rounded-circle shadow-1-strong" width="100" height="100" />
+{% load custom_filters %}
+{% load static %}
+<body><section id="testimonials">
+  <div class="testimonial-box-container">
+    <div class="testimonial-box">
+      <div class="box-top">
+        <div class="profile">
+          <div class="profile-img">
+            {% if review.user.image %}
+              <img src="{{ review.user.image }}" />
+            {% else %}
+              <img src="{% static 'img/default/user.webp' %}" />
+            {% endif %}
+          </div>
+          <div class="name-user">
+            <strong>{{ review.user.username }}</strong>
+            <span>{{ review.created_date }}</span>
+          </div>
+        </div>
+        <div class="reviews">
+          {% for _ in review.rating|custom_range %}
+            <i class="fas fa-star"></i>
+          {% endfor %}
+          {% comment %} <i class="fas fa-star"></i>
+          <i class="fas fa-star"></i>
+          <i class="fas fa-star"></i>
+          <i class="far fa-star"></i> {% endcomment %}
+        </div>
+      </div>
+      <div class="client-comment">
+          <p>{{ review.text }}</p>
+      </div>
     </div>
-    <h5 class="font-weight-bold">Пользователь: {{ review.user.username }}</h5>
-    <h6 class="font-weight-bold my-3">Оценка: {{ review.rating }}</h6>
-    <p class="mb-2">Отзыв: {{ review.text }}</p>
   </div>
-</div>
+</section></body>

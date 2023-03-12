@@ -37,7 +37,7 @@
                     <tr>
                       <th scope="row">{{ page_obj.start_index|add:forloop.counter0 }}</th>
                       <td>{{ element.id }}</td>
-                      <td>{{ element.type }}</td>
+                      <td>{{ element.get_type_display }}</td>
                       {% if element.product %}
                         <td>{{ element.product.id }}</td>
                         <td>{{ element.product.name }}</td>
