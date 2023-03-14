@@ -55,7 +55,22 @@
                         </button>
                       </a>
                     {% else %}
-                      <span>Нет в наличии</span>
+                      <div style="margin-right:10px">
+                        <span>Нет в наличии</span>
+                      </div>
+                    {% endif %}
+                    {% if product.favorite.exists %}
+                      <a href="{% url 'users:remove_from_favorite' product.id %}">
+                        <button style="position: relative" type="button" class="btn btn-danger btn-sm me-1 mb-2" data-mdb-toggle="tooltip" title="В избранном">
+                          <i class="fa-solid fa-heart"></i>
+                        </button>
+                      </a>
+                    {% else %}
+                      <a href="{% url 'users:add_to_favorite' product.id %}">
+                        <button style="position: relative" type="button" class="btn btn-outline-danger btn-sm me-1 mb-2" data-mdb-toggle="tooltip" title="В избранное">
+                          <i class="fa-regular fa-heart"></i>
+                        </button>
+                      </a>
                     {% endif %}
                   </div>
                 </div>
