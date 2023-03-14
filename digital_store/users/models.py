@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+# from shop.models import Product
+
 
 class User(AbstractUser):
     USER_ROLE = (
@@ -31,3 +33,30 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
+
+class Favorite(models.Model):
+    """
+    Модель избранного
+    """
+
+    user = models.ForeignKey(
+        User,
+        related_name='favorite',
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+    )
+
+    product = models.ForeignKey(
+        "shop.Product",
+        related_name='favorite',
+        on_delete=models.CASCADE,
+        verbose_name='Продукт',
+    )
+
+    def __str__(self):
+        return f'{self.user} <3 {self.product}'
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=('user', 'product'),
+                       name='Уникальные значения')]
