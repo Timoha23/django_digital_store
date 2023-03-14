@@ -1,4 +1,5 @@
 from functools import wraps
+import time
 
 from django.http import Http404
 from django.db.models import Avg
@@ -104,6 +105,7 @@ def shop(request, shop_id):
                     .select_related('shop__owner')
                     .prefetch_related('category')
                     .prefetch_related('review')
+                    .order_by('-created_date')
                     .annotate(avg_rating=Avg('review__rating'))
                     )
 
@@ -209,6 +211,7 @@ def product_list(request):
 
     products = (Product.objects.filter(status='Accept')
                 .select_related('shop__owner')
+                .prefetch_related('favorite')
                 .prefetch_related('category')
                 .prefetch_related('review')
                 .annotate(avg_rating=Avg('review__rating'))
@@ -226,14 +229,6 @@ def product_list(request):
         context=context,
         template_name='shop/product_list.html'
     )
-
-
-def cart(request):
-    """
-    Страница корзины
-    """
-
-    return render(request, template_name='users/cart.html')
 
 
 @login_required
