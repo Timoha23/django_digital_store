@@ -13,3 +13,12 @@ def is_available(count):
     if count == 0:
         return False
     return True
+
+
+@register.filter(name='get_product_full_price')
+def get_product_full_price(obj):
+    """
+    Расчет стоимости продукта в зависимости от его кол-ва
+    """
+
+    return obj.count_items * obj.product.price
