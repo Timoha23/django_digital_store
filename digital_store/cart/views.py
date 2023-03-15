@@ -2,9 +2,10 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
+from django.http import JsonResponse
 
 from shop.models import Product, Item
-from core.actions import get_or_none
+from core.actions import get_or_none, is_ajax
 from .models import Cart, Order, OrderHistory
 
 
@@ -20,7 +21,6 @@ def add_to_cart(request, product_id):
 
     len_sale_products = len(product.item.filter(status='sale').all())
 
-
     # проверка то, что юзер хочет добавить товаров больше чем их есть в наличии
     if product_in_user_cart:
         if len_sale_products <= product_in_user_cart.count_items:
@@ -31,20 +31,16 @@ def add_to_cart(request, product_id):
         messages.error(request, 'Недостаточно товаров')
         return redirect('shop:index')
 
-
     if product_in_user_cart is None:
         create_product = Cart.objects.create(
             user=request.user,
             product=product,
-            price=product.price,
-            full_price=product.price,
             count_items=1,
         )
         create_product.save()
 
     else:
         product_in_user_cart.count_items += 1
-        product_in_user_cart.full_price += product.price
         product_in_user_cart.save()
 
     return redirect('shop:product', product.id)
@@ -68,15 +64,19 @@ def cart(request):
     Отображение продуктов в корзине
     """
 
+    cart_price = 0
+
     cart = (Cart.objects.filter(user=request.user)
             .select_related('product', 'product__shop')
             )
 
-    cart_price = cart.aggregate(Sum('full_price')) or 0
+    # расчет общей суммы корзины
+    for obj in cart:
+        cart_price += obj.count_items * obj.product.price
 
     context = {
         'cart': cart,
-        'cart_price': cart_price.get('full_price__sum') or 0,
+        'cart_price': cart_price,
     }
 
     return render(request, context=context, template_name='cart/cart.html')
@@ -93,9 +93,9 @@ def make_order(request):
 
     for obj in cart:
         product = obj.product
-        price = obj.price
-        full_price = obj.full_price
+        price = obj.product.price
         count_items = obj.count_items
+        full_price = price * count_items
         items = product.item.filter(status='sale')[:count_items]
         # проверка на то есть ли указаное в заказе количество товара
         if len(items) < count_items:
@@ -127,6 +127,67 @@ def make_order(request):
     return redirect('cart:cart')
 
 
+@login_required
+def add_count_items(request):
+    """
+    Изменение количества товара в корзине(+)
+    """
+
+    # if is_ajax(request=request):
+    if is_ajax(request=request) and request.method == 'POST':
+        data = request.POST
+        maximum_count = False
+        obj = get_object_or_404(Cart, id=int(data['object_id']))
+        full_cart_price = int(data['full_cart_price'])
+
+        full_cart_price += obj.product.price
+        obj.count_items += 1
+        obj.save()
+
+        if obj.count_items >= obj.product.count:
+            maximum_count = True
+
+        full_price = obj.product.price * obj.count_items
+        context = {
+            'maximum_count': maximum_count,
+            'count_items': obj.count_items,
+            'full_price': full_price,
+            'full_cart_price': full_cart_price,
+        }
+
+        return JsonResponse(context, status=200)
+    return JsonResponse({"success": False}, status=400)
+
+
+@login_required
+def remove_count_items(request):
+    """
+    Изменение количества товара в корзине(-)
+    """
+
+    if is_ajax(request=request) and request.method == 'POST':
+        data = request.POST
+        minimum_count = False
+        obj = get_object_or_404(Cart, id=int(data['object_id']))
+        full_cart_price = int(data['full_cart_price'])
+        full_cart_price -= obj.product.price
+        obj.count_items -= 1
+        obj.save()
+
+        if obj.count_items == 0:
+            minimum_count = True
+
+        full_price = obj.product.price * obj.count_items
+
+        context = {
+            'minimum_count': minimum_count,
+            'count_items': obj.count_items,
+            'full_price': full_price,
+            'full_cart_price': full_cart_price,
+        }
+
+        return JsonResponse(context, status=200)
+    return JsonResponse({"success": False}, status=400)
 # @login_required
 # def order_list(request):
 #     """
