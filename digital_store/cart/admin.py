@@ -4,8 +4,14 @@ from .models import Cart, Order, OrderHistory
 
 
 class CartAdmin(admin.ModelAdmin):
-    list_display = ('user', 'product', 'price', 'full_price',
+    list_display = ('id', 'user', 'product', 'get_price', 'get_full_price',
                     'count_items', 'updated_date')
+
+    def get_price(self, obj):
+        return None
+
+    def get_full_price(self, obj):
+        return None
 
 
 class OrderAdmin(admin.ModelAdmin):
