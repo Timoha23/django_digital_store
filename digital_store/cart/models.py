@@ -23,16 +23,6 @@ class Cart(models.Model):
         related_name='cart',
     )
 
-    price = models.FloatField(
-        default=0,
-        verbose_name='Цена за единицу товара',
-    )
-
-    full_price = models.FloatField(
-        default=0,
-        verbose_name='Полная цена',
-    )
-
     count_items = models.IntegerField(
         default=0,
         verbose_name='Количество',
