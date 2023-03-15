@@ -1,5 +1,6 @@
 {% load thumbnail %}
 {% load static %}
+{% load custom_filters %}
 <!-- Single item -->
 <div class="row">
   <div class="col-lg-3 col-md-12 mb-4 mb-lg-0">
@@ -18,8 +19,27 @@
     <!-- Data -->
     <p><strong>Название: {{ obj.product.name }}</strong></p>
     <p>Магазин: {{ obj.product.shop.name }}</p>
-    <p>Цена за штуку: {{ obj.price }} ₽</p>
-    <p>Количество: {{ obj.count_items }} шт.</p>
+    <p>Цена за штуку: {{ obj.product.price }} ₽</p>
+    <div>
+      <form action="{% url 'cart:remove_count_items'%}" method="POST" class="remove-count-form" id="{{ obj.id }}">
+        {% csrf_token %}
+        {% if obj.count_items == False %}
+          <button class="btn remove-count-btn{{ obj.id }}" disabled=""><i class="fa-solid fa-minus"></i></button>
+        {% else %}
+          <button class="btn remove-count-btn{{ obj.id }}"><i class="fa-solid fa-minus"></i></button>
+        {% endif %}
+      </form>
+      <p style="display:inline">Количество: <p style="display:inline" class="count-items{{ obj.id }}">{{ obj.count_items }}</p> шт.
+      <form action="{% url 'cart:add_count_items'%}" method="POST" class="add-count-form" id="{{ obj.id }}">
+        {% csrf_token %}
+        {% if obj.count_items == obj.product.count %}
+          <button class="btn add-count-btn{{ obj.id }}" id="add-count-btn" disabled=""><i class="fa-solid fa-plus"></i></button>
+        {% else%}
+          <button class="btn add-count-btn{{ obj.id }}" id="add-count-btn"><i class="fa-solid fa-plus"></i></button>
+        {% endif %}
+      </form>
+      </p>
+    </div>
     <a href="{% url 'cart:del_from_cart' obj.product.id %}" class="btn btn-primary btn-sm me-1 mb-2">
       <i class="fas fa-trash"></i>
     </a>
@@ -34,7 +54,7 @@
     <!-- Price -->
     <h4 class="text-start text-md-center">Цена</h3>
     <p class="text-start text-md-center">
-      <strong>{{ obj.full_price }} ₽</strong>
+      <strong class="full-price{{ obj.id }}">{{ obj|get_product_full_price }}</strong> <strong>₽</strong>
     </p>
     <!-- Price -->
   </div>
