@@ -196,3 +196,23 @@ a{
 .is_unavailable {
     filter: brightness(70%);
 }
+
+/* .dropdown-scroll {
+    max-height: 100px;
+    overflow-y: scroll;
+}
+
+
+.dropdown-toggle::after {
+    content: none;
+} */
+
+.fa-bell {
+    color: rgb(218, 192, 47);
+    /* text-shadow: #000 1px 0px 1px, #000 0px 1px 1px, #000 0px -1px 1px, #000 -1px 0px 1px; */
+  }
+
+
+/* .dropdown-notify {
+    font-size: 13px;
+} */
