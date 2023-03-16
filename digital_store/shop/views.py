@@ -1,13 +1,13 @@
 from functools import wraps
-import time
 
 from django.http import Http404
-from django.db.models import Avg
+from django.db.models import Avg, Prefetch
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 
 from cart.models import OrderHistory
+from users.models import Favorite
 from digital_store.settings import STAFF_ROLES
 from moderation.models import AcceptRejectList
 from reviews.models import Review
@@ -120,7 +120,18 @@ def shop(request, shop_id):
                     .order_by('-is_available')
                     )
 
+    if request.user.is_authenticated:
+        favorites = request.user.favorite.all().values_list('product__id',
+                                                            flat=True)
+        cart = request.user.cart.all().values_list('product__id',
+                                                   flat=True)
+    else:
+        favorites = []
+        cart = []
+
     context = {
+        'favorites': favorites,
+        'cart': cart,
         'shop': shop,
         'products': products,
         'products_exists': products.exists(),
@@ -184,8 +195,17 @@ def product(request, product_id):
             user=request.user,
             review=False
         )
+        favorites = request.user.favorite.all().values_list('product__id',
+                                                            flat=True)
+        cart = request.user.cart.all().values_list('product__id',
+                                                       flat=True)
+    else:
+        favorites = []
+        cart = []
 
     context = {
+        'favorites': favorites,
+        'cart': cart,
         'shop': shop,
         'product': product,
         'items': items,
@@ -211,15 +231,26 @@ def product_list(request):
 
     products = (Product.objects.filter(status='Accept')
                 .select_related('shop__owner')
-                .prefetch_related('favorite')
                 .prefetch_related('category')
                 .prefetch_related('review')
+                .prefetch_related('cart')
                 .annotate(avg_rating=Avg('review__rating'))
                 .order_by('-created_date')
                 .order_by('-is_available')
                 )
 
+    if request.user.is_authenticated:
+        favorites = request.user.favorite.all().values_list('product__id',
+                                                            flat=True)
+        cart = request.user.cart.all().values_list('product__id',
+                                                       flat=True)
+    else:
+        favorites = []
+        cart = []
+
     context = {
+        'favorites': favorites,
+        'cart': cart,
     }
 
     context.update(get_context_paginator(products, request, is_products=True))
