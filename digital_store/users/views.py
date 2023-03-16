@@ -3,10 +3,11 @@ from django.views.generic import CreateView
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 
 from shop.views import get_context_paginator, Product
 from cart.models import Order
-from core.actions import get_or_none
+from core.actions import get_or_none, is_ajax
 from .forms import CreationForm
 from .models import Favorite
 
@@ -56,7 +57,18 @@ def get_favorite_list(request):
                          .select_related('shop__owner')
                          )
 
+    if request.user.is_authenticated:
+        favorites = request.user.favorite.all().values_list('product__id',
+                                                            flat=True)
+        cart = request.user.cart.all().values_list('product__id',
+                                                   flat=True)
+    else:
+        favorites = []
+        cart = []
+
     context = {
+        'favorites': favorites,
+        'cart': cart,
     }
 
     context.update(get_context_paginator(favorite_products, request))
@@ -65,36 +77,46 @@ def get_favorite_list(request):
                   template_name='users/favorites.html')
 
 
+# @login_required
+# def add_to_favorite(request, product_id):
+    # """
+    # Добавление продукта в избранное
+    # """
+
+    # product = get_object_or_404(Product, pk=product_id)
+
+    # if request.user == product.shop.owner:
+    #     messages.error(request, 'Владелец не может добавить свой товар в избранное.')
+    #     return redirect('users:favorites')
+    # if Favorite.objects.filter(user=request.user, product=product).exists():
+    #     messages.error(request, 'Данный товар уже находится у вас в избранном')
+    #     return redirect('users:favorites')
+    # else:
+    #     Favorite.objects.create(user=request.user, product=product)
+    #     messages.success(request, f'Товар {product.name} успешно добавлен в избранное.')
+    #     return redirect('users:favorites')
+
+
 @login_required
-def add_to_favorite(request, product_id):
-    """
-    Добавление продукта в избранное
-    """
-
-    product = get_object_or_404(Product, pk=product_id)
-
-    if Favorite.objects.filter(user=request.user, product=product).exists():
-        messages.error(request, 'Данный товар уже находится у вас в избранном')
-        return redirect('users:favorites')
-    else:
-        Favorite.objects.create(user=request.user, product=product)
-        messages.success(request, f'Товар {product.name} успешно добавлен в избранное.')
-        return redirect('users:favorites')
-
-
-def remove_from_favorite(request, product_id):
+def change_favorite(request):
     """
     Удаление продукта из избранного
     """
 
-    product = get_object_or_404(Product, pk=product_id)
+    if is_ajax(request=request) and request.method == 'POST':
+        data = request.POST
+        is_favorite = False
+        product = get_object_or_404(Product, id=int(data['product_id']))
+        fav_obj = Favorite.objects.filter(user=request.user, product=product)
+        if fav_obj.exists():
+            fav_obj.first().delete()
+        else:
+            Favorite.objects.create(user=request.user, product=product)
+            is_favorite = True
 
-    favorite_obj = get_or_none(Favorite, product=product, user=request.user)
+        context = {
+            'is_favorite': is_favorite,
+        }
 
-    if favorite_obj:
-        favorite_obj.delete()
-        messages.success(request, f'Товар {product.name} успешно удален из избранного.')
-        return redirect('users:favorites')
-    else:
-        messages.error(request, f'Товар {product.name} не неходится в избранном.')
-        return redirect('users:favorites')
+        return JsonResponse(context, safe=False)
+    return JsonResponse({"success": False}, status=400)
