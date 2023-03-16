@@ -197,15 +197,16 @@ a{
     filter: brightness(70%);
 }
 
-/* .dropdown-scroll {
+
+.dropdown-scroll {
     max-height: 100px;
     overflow-y: scroll;
 }
 
 
-.dropdown-toggle::after {
+.dropdown-toggle-notify::after {
     content: none;
-} */
+}
 
 .fa-bell {
     color: rgb(218, 192, 47);
@@ -213,6 +214,9 @@ a{
   }
 
 
-/* .dropdown-notify {
-    font-size: 13px;
-} */
+p.notify {
+    font-size: 14px;
+    color: #252525;
+    padding: 10px;
+}
+
