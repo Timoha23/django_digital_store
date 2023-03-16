@@ -10,43 +10,6 @@ from .models import Cart, Order, OrderHistory
 
 
 @login_required
-def add_to_cart(request, product_id):
-    """
-    Добавление продукта в корзину
-    """
-
-    product = get_object_or_404(Product.objects.filter(status='Accept'),
-                                pk=product_id)
-    product_in_user_cart = get_or_none(Cart, product=product)
-
-    len_sale_products = len(product.item.filter(status='sale').all())
-
-    # проверка то, что юзер хочет добавить товаров больше чем их есть в наличии
-    if product_in_user_cart:
-        if len_sale_products <= product_in_user_cart.count_items:
-            messages.error(request, f'Недопустимое количество товара. В магазине всего: {len_sale_products}')
-            return redirect('shop:index')
-
-    if len_sale_products == 0:
-        messages.error(request, 'Недостаточно товаров')
-        return redirect('shop:index')
-
-    if product_in_user_cart is None:
-        create_product = Cart.objects.create(
-            user=request.user,
-            product=product,
-            count_items=1,
-        )
-        create_product.save()
-
-    else:
-        product_in_user_cart.count_items += 1
-        product_in_user_cart.save()
-
-    return redirect('shop:product', product.id)
-
-
-@login_required
 def del_from_cart(request, product_id):
     """
     Удаление продукта из корзины
@@ -57,6 +20,49 @@ def del_from_cart(request, product_id):
     messages.success(request, f'Товар {cart_obj.product.name} успешно удален из корзины.')
     return redirect('cart:cart')
 
+
+@login_required
+def add_to_cart(request):
+    """
+    Добавление товара в корзину. Если добавлен делаем +1 в корзину.
+    """
+
+    if is_ajax(request=request) and request.method == 'POST':
+        data = request.POST
+        product = get_object_or_404(Product.objects.filter(status='Accept'),
+                                    pk=data['product_id'])
+
+        product_in_user_cart = get_or_none(Cart, product=product,
+                                           user=request.user)
+
+        len_sale_products = len(product.item.filter(status='sale').all())
+
+        # проверка то, что юзер хочет добавить товаров больше чем их есть в
+        # наличии
+
+        if product_in_user_cart:
+            if len_sale_products <= product_in_user_cart.count_items:
+                return JsonResponse({"success": False}, status=400)
+
+        if len_sale_products == 0:
+            return JsonResponse({"success": False}, status=400)
+
+        if product_in_user_cart is None:
+            create_product = Cart.objects.create(
+                user=request.user,
+                product=product,
+                count_items=1,
+            )
+            create_product.save()
+
+        else:
+            product_in_user_cart.count_items += 1
+            product_in_user_cart.save()
+        context = {
+            'product_name': product.name,
+        }
+        return JsonResponse(context, status=200)
+    return JsonResponse({"success": False}, status=400)
 
 @login_required
 def cart(request):
@@ -100,6 +106,10 @@ def make_order(request):
         # проверка на то есть ли указаное в заказе количество товара
         if len(items) < count_items:
             messages.error(request, f'К сожалению {product.name} имеет в наличии только {len(items)} товаров. У вас указано {count_items}')
+            return redirect('cart:cart')
+
+        if len(items) <= 0:
+            messages.error(request, f'Нельзя оформить заказ на 0 товаров. Ошибка: {product.name}.')
             return redirect('cart:cart')
 
         order_history = OrderHistory.objects.create(
