@@ -48,10 +48,15 @@ class Favorite(models.Model):
     )
 
     product = models.ForeignKey(
-        "shop.Product",
+        'shop.Product',
         related_name='favorite',
         on_delete=models.CASCADE,
         verbose_name='Продукт',
+    )
+
+    created_date = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата добавления',
     )
 
     def __str__(self):
