@@ -49,29 +49,44 @@
                 <div style="z-index:2; position: relative;">
                   <div class="btn-group justify-content-start">
                     {% if product.is_available %}
-                      <a href="{% url 'cart:add_to_cart' product.id %}">
-                        <button style="position: relative" type="button" class="btn btn-success btn-sm me-1 mb-2" data-mdb-toggle="tooltip" title="В корзину">
-                          <i class="fa-sharp fa-solid fa-basket-shopping"></i>
-                        </button>
-                      </a>
+                      <form action="{% url 'cart:add_to_cart' %}" method="POST" class="add-to-cart-form" id="{{ product.id }}">
+                        {% csrf_token %}
+                        {% if product.id in cart %}
+                          <button style="position: relative" type="submit" class="btn btn-success btn-sm me-1 mb-2" data-mdb-toggle="tooltip" title="В корзине">
+                            <i class="fa-solid fa-basket-shopping"></i>
+                          </button>
+                        {% else %}
+                          <button style="position: relative" type="submit" class="btn btn-outline-success btn-sm me-1 mb-2" data-mdb-toggle="tooltip" title="В корзину">
+                            <i class="fa-solid fa-basket-shopping"></i>
+                          </button>
+                        {% endif %}
+                      </form>
                     {% else %}
-                      <div style="margin-right:10px">
-                        <span>Нет в наличии</span>
+                      <div class="text-center" style="margin-right:10px">
+                        <div>
+                          <h5>Нет в наличии</h5>
+                        </div>
+                        <div>
+                          <a href="">
+                            <span >сообщить о появлении</span>
+                          </a>
+                        </div>
                       </div>
                     {% endif %}
-                    {% if product.favorite.exists %}
-                      <a href="{% url 'users:remove_from_favorite' product.id %}">
-                        <button style="position: relative" type="button" class="btn btn-danger btn-sm me-1 mb-2" data-mdb-toggle="tooltip" title="В избранном">
-                          <i class="fa-solid fa-heart"></i>
-                        </button>
-                      </a>
-                    {% else %}
-                      <a href="{% url 'users:add_to_favorite' product.id %}">
-                        <button style="position: relative" type="button" class="btn btn-outline-danger btn-sm me-1 mb-2" data-mdb-toggle="tooltip" title="В избранное">
-                          <i class="fa-regular fa-heart"></i>
-                        </button>
-                      </a>
-                    {% endif %}
+                      <form action="{% url 'users:change_favorite' %}" method="POST" class="favorite-form" id="{{ product.id }}">
+                        {% csrf_token %}
+                        <div class="favorite-btn-wrap">
+                          {% if product.id in favorites %}
+                            <button style="position: relative" type="submit" class="btn btn-danger btn-sm me-1 mb-2" data-mdb-toggle="tooltip" title="В избранном">
+                              <i class="fa-solid fa-heart"></i>
+                            </button>
+                          {% else %}
+                            <button style="position: relative" type="submit" class="btn btn-outline-danger btn-sm me-1 mb-2" data-mdb-toggle="tooltip" title="В избранное">
+                              <i class="fa-regular fa-heart"></i>
+                            </button>
+                          {% endif %}
+                        </div>
+                      </form>
                   </div>
                 </div>
               {% endif %}
