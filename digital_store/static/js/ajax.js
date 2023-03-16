@@ -64,40 +64,87 @@ $(document).ready(function() {
         });
     });
 
-    // ДОБАВЛЕНИЕ В ИЗБРАННОЕ
-    $('.favorite-form').submit(function(e){
-        e.preventDefault()
-        const product_id = $(this).attr('id')
-        const url = $(this).attr('action')
-        const button = $(`.favorite-btn${ product_id }`)
-        const heart = $(`.i${ product_id }`)
-        
-        $.ajax({
-            type: 'POST',
-            url: url,
-            data: {
-                'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
-                'product_id': product_id,
-            },
-            success: function(response) {
-                if(button.attr('id') === '1') {
-                    button.removeClass('btn-danger').addClass('btn-outline-danger')
-                    heart.removeClass('fa-solid').addClass('fa-regular')
-                    console.log(heart)
-                    // button.attr('id') = '2'
-                } else {
-                    console.log('2')
-                    button.removeClass('btn-outline-danger').addClass('btn-danger')
-                    heart.removeClass('fa-regular').addClass('fa-solid')
-                    // button.attr('id') = '1'
-                }
-            },
-            error: function(response) {
-                console.log('error', response)
-            }
-        })
-    });
+    addRemoveFavorite()
+
+    addToCart()
 }); 
+
+
+function addRemoveFavorite() {
+    $('.favorite-form').each((index, el) => {
+        $(el).on('submit', (e) => {
+            e.preventDefault();
+            const product_id = $(el).attr('id')
+            const url = $(el).attr('action')
+
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: {
+                    'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+                    'product_id': product_id,
+                },
+
+                success: function(response) {
+                    if (response.is_favorite) {
+                        $(el).find('.favorite-btn-wrap').empty()
+                        $(el).find('.favorite-btn-wrap').html(`
+                            <button style="position: relative" type="submit" class="btn btn-danger btn-sm me-1 mb-2" data-mdb-toggle="tooltip" title="В избранном">
+                                <i class="fa-solid fa-heart"></i>
+                            </button>
+                        `)
+                    } else {
+                        $(el).find('.favorite-btn-wrap').empty()
+                        $(el).find('.favorite-btn-wrap').html(`
+                            <button style="position: relative" type="submit" class="btn btn-outline-danger btn-sm me-1 mb-2" data-mdb-toggle="tooltip" title="В избранное">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
+                        `)
+                    }
+                },
+                error: function(response) {
+                    console.log('error')
+                }
+            })
+        });
+    });
+}
+
+function addToCart() {
+    $('.add-to-cart-form').each((index, el) => {
+        $(el).on('submit', (e) => {
+            e.preventDefault();
+            const product_id = $(el).attr('id')
+            const url = $(el).attr('action')
+
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: {
+                    'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+                    'product_id': product_id,
+                },
+                success: function(response) {
+                    $(el).find('.btn').removeClass('btn-outline-success').addClass('btn-success')
+                    swal({
+                        title: 'Успешно!',
+                        text: `Вы добавили ${response.product_name} в корзину`,
+                        icon: 'success',
+                        confirmButtonText: 'Закрыть'
+                      });
+                },
+                error: function(response) {
+                    swal({
+                        title: 'Ошибка!',
+                        text: 'В магазине недостаточно товаров. Вы добавили максимум',
+                        icon: 'error',
+                        confirmButtonText: 'Закрыть'
+                      });
+                }
+            })
+        });
+    });
+}
 
 // $(document).ready(function(){
 //     $("#change_count_minus").click(function(){
