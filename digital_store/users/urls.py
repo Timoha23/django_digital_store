@@ -11,8 +11,8 @@ urlpatterns = [
     path('login/', LoginView.as_view(template_name='users/login.html'), name='login'),
     path('logout/', LogoutView.as_view(template_name='users/logged_out.html'), name='logout'),
     path('favorites/', views.get_favorite_list, name='favorites'),
-    path('add_favorites/<int:product_id>/', views.add_to_favorite, name='add_to_favorite'),
-    path('remove_from_favorite/<int:product_id>', views.remove_from_favorite, name='remove_from_favorite'),
+    # path('add_to_favorite/', views.add_to_favorite, name='add_to_favorite'),
+    path('change_favorite/', views.change_favorite, name='change_favorite'),
     path('profile/<slug:username>/', views.user_profile, name='user_profile'),
     path('orders/', views.order_list, name='orders')
 ]
