@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
 from django.http import JsonResponse
 
+from digital_store.settings import MAX_CART_SIZE
 from shop.models import Product, Item
 from core.actions import get_or_none, is_ajax
 from .models import Cart, Order, OrderHistory
@@ -28,6 +29,15 @@ def add_to_cart(request):
     """
 
     if is_ajax(request=request) and request.method == 'POST':
+        # проверка на то, что корзина юзера не переполнена
+        if Cart.objects.filter(user=request.user).count() >= MAX_CART_SIZE:
+            context = {
+                'success': False,
+                'error': 'max_cart_size',
+                'max_cart_size': MAX_CART_SIZE,
+            }
+            return JsonResponse(context, status=400)
+
         data = request.POST
         product = get_object_or_404(Product.objects.filter(status='Accept'),
                                     pk=data['product_id'])
@@ -37,7 +47,7 @@ def add_to_cart(request):
 
         len_sale_products = len(product.item.filter(status='sale').all())
 
-        # проверка то, что юзер хочет добавить товаров больше чем их есть в
+        # проверка на то, что юзер хочет добавить товаров больше чем их есть в
         # наличии
 
         if product_in_user_cart:
@@ -64,6 +74,7 @@ def add_to_cart(request):
         return JsonResponse(context, status=200)
     return JsonResponse({"success": False}, status=400)
 
+
 @login_required
 def cart(request):
     """
@@ -75,6 +86,13 @@ def cart(request):
     cart = (Cart.objects.filter(user=request.user)
             .select_related('product', 'product__shop')
             )
+
+    # Если количество продукта больше чем есть в магазине, то
+    # меняем количество в корзине на существующее в магазине
+    for item in cart:
+        if item.count_items > item.product.count:
+            item.count_items = item.product.count
+            item.save()
 
     # расчет общей суммы корзины
     for obj in cart:
@@ -91,11 +109,19 @@ def cart(request):
 @login_required
 def make_order(request):
     cart = Cart.objects.filter(user=request.user)
-    order = Order.objects.create()
 
     if len(cart) < 1:
         messages.error(request, 'В вашей корзине нет товаров')
         return redirect('cart:cart')
+
+    # проверим нет ли товаров с количеством 0
+    for obj in cart:
+        product = obj.product
+        count_items = obj.count_items
+        items = product.item.filter(status='sale')[:count_items]
+        if len(items) <= 0:
+            messages.error(request, f'Нельзя оформить заказ на 0 товаров. Ошибка: {product.name}.')
+            return redirect('cart:cart')
 
     for obj in cart:
         product = obj.product
@@ -103,15 +129,13 @@ def make_order(request):
         count_items = obj.count_items
         full_price = price * count_items
         items = product.item.filter(status='sale')[:count_items]
+
         # проверка на то есть ли указаное в заказе количество товара
         if len(items) < count_items:
             messages.error(request, f'К сожалению {product.name} имеет в наличии только {len(items)} товаров. У вас указано {count_items}')
             return redirect('cart:cart')
 
-        if len(items) <= 0:
-            messages.error(request, f'Нельзя оформить заказ на 0 товаров. Ошибка: {product.name}.')
-            return redirect('cart:cart')
-
+        order = Order.objects.create()
         order_history = OrderHistory.objects.create(
             user=request.user,
             order=order,
