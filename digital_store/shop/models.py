@@ -66,6 +66,13 @@ class Category(models.Model):
         max_length=128,
         verbose_name='Название',
     )
+
+    slug = models.SlugField(
+        unique=True,
+        max_length=20,
+        verbose_name='Уникальный адрес категории',
+    )
+
     created_date = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Дата создания',
@@ -100,8 +107,8 @@ class Product(models.Model):
     )
     category = models.ManyToManyField(
         Category,
+        blank=True,
         related_name='category',
-        # default=get_default_category(),
         verbose_name='Категория',
     )
     image = models.ImageField(
@@ -137,7 +144,6 @@ class Product(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        print(self.count)
         if self.count > 0:
             self.is_available = True
         else:
