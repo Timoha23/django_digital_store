@@ -11,15 +11,27 @@ from .models import Cart, Order, OrderHistory
 
 
 @login_required
-def del_from_cart(request, product_id):
+def del_from_cart(request):
     """
     Удаление продукта из корзины
     """
 
-    cart_obj = get_object_or_404(Cart, product__id=product_id, user=request.user)
-    cart_obj.delete()
-    messages.success(request, f'Товар {cart_obj.product.name} успешно удален из корзины.')
-    return redirect('cart:cart')
+    if is_ajax(request=request) and request.method == 'POST':
+        data = request.POST
+        full_cart_price = int(data['full_cart_price'])
+        product = get_object_or_404(Product, id=data['product_id'])
+        cart_obj = get_object_or_404(Cart, product=product,
+                                     user=request.user)
+
+        cart_obj_price = cart_obj.count_items * product.price
+        full_cart_price -= cart_obj_price
+        cart_obj.delete()
+        context = {
+            'product_name': product.name,
+            'full_cart_price': full_cart_price,
+        }
+        return JsonResponse(context, status=200)
+    return JsonResponse({"success": False}, status=400)
 
 
 @login_required
