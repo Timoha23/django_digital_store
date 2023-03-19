@@ -7,15 +7,11 @@
       <div class="col-md-8">
         <div class="card mb-4">
           <div class="card-header py-3">
-            <h5 class="mb-0">Корзина - {{ cart|length }} товаров</h5>
+            <h5 class="mb-0">Корзина - <p class="cart-size" style="display:inline">{{ cart|length }}</p> товаров</h5>
           </div>
           <div class="card-body">
             {% for obj in cart %}
               {% include 'includes/item_in_cart.html' %}
-              {% if forloop.last %}
-              {% else %}
-                <hr class="hr-dashed-gradient"></hr>
-              {% endif %}
             {% endfor %}
           </div>
         </div>
