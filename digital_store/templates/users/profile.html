@@ -9,7 +9,7 @@
         <div class="card mb-4">
           <div class="card-body text-center">
             {% if request.user.image %}
-            {% thumbnail request.user.image "32x32" crop="center" as im %}
+            {% thumbnail request.user.image "150x150" crop="center" as im %}
               <img src="{{ im.url }}" alt="avatar"
                 class="rounded-circle img-fluid" style="width: 150px;">
             {% endthumbnail %}

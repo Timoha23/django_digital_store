@@ -1,4 +1,5 @@
 {% load custom_filters %}
+{% load thumbnail %}
 {% load static %}
 <body><section id="testimonials">
   <div class="testimonial-box-container">
@@ -7,9 +8,12 @@
         <div class="profile">
           <div class="profile-img">
             {% if review.user.image %}
-              <img src="{{ review.user.image }}" />
+            {% thumbnail request.user.image "45x45" crop="center" as im %}
+              <img src="{{ im.url }}" alt="avatar"
+                class="rounded-circle img-fluid">
+            {% endthumbnail %}
             {% else %}
-              <img src="{% static 'img/default/user.webp' %}" />
+              <img src="{% static 'img/default/user.webp' %}" class="rounded-circle img-fluid">
             {% endif %}
           </div>
           <div class="name-user">
@@ -18,13 +22,13 @@
           </div>
         </div>
         <div class="reviews">
-          {% for _ in review.rating|custom_range %}
-            <i class="fas fa-star"></i>
+          {% for _ in 5|custom_range %}
+            {% if forloop.counter > review.rating %}
+              <i class="far fa-star"></i>
+            {% else %}
+              <i class="fas fa-star"></i>
+            {% endif %}
           {% endfor %}
-          {% comment %} <i class="fas fa-star"></i>
-          <i class="fas fa-star"></i>
-          <i class="fas fa-star"></i>
-          <i class="far fa-star"></i> {% endcomment %}
         </div>
       </div>
       <div class="client-comment">

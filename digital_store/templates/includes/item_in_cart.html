@@ -2,7 +2,7 @@
 {% load static %}
 {% load custom_filters %}
 <!-- Single item -->
-<div class="row">
+<div class="row" id="card-{{ obj.product.id }}">
   <div class="col-lg-3 col-md-12 mb-4 mb-lg-0">
     <!--Изображение товара-->
     {% if obj.product.image %}
@@ -44,10 +44,10 @@
       </form>
       </p>
     </div>
-    <a href="{% url 'cart:del_from_cart' obj.product.id %}" class="btn btn-primary btn-sm me-1 mb-2">
-      <i class="fas fa-trash"></i>
-    </a>
-    <!-- Data -->
+    <form action="{% url 'cart:del_from_cart' %}" method="POST" class="del-from-cart-form" id="{{ obj.product.id }}">
+      {% csrf_token %}
+      <button class="btn btn-primary btn-sm me-1 mb-2" id="del-from-cart-btn"><i class="fas fa-trash"></i></button>
+    </form>
   </div>
 
   <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
@@ -58,5 +58,6 @@
     </p>
     <!-- Price -->
   </div>
+  <hr class="hr-dashed-gradient"></hr>
 </div>
 <!-- Single item -->

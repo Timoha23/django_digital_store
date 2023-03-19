@@ -69,11 +69,11 @@
                         <div>
                           <h5>Нет в наличии</h5>
                         </div>
-                        <div>
+                        {% comment %} <div>
                           <a href="">
                             <span >сообщить о появлении</span>
                           </a>
-                        </div>
+                        </div> {% endcomment %}
                       </div>
                     {% endif %}
                       <form action="{% url 'users:change_favorite' %}" method="POST" class="favorite-form" id="{{ product.id }}">
