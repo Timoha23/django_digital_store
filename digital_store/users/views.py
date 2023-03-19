@@ -22,7 +22,7 @@ def user_profile(request, username):
     """
     Профиль пользователя
     """
-    print(username)
+
     return render(request, template_name='users/profile.html')
 
 
@@ -100,7 +100,7 @@ def get_favorite_list(request):
 @login_required
 def change_favorite(request):
     """
-    Удаление продукта из избранного
+    Удаление/добавление продукта из избранного
     """
 
     if is_ajax(request=request) and request.method == 'POST':
