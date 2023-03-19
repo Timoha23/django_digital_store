@@ -134,12 +134,21 @@ function addToCart() {
                       });
                 },
                 error: function(response) {
-                    swal({
-                        title: 'Ошибка!',
-                        text: 'В магазине недостаточно товаров. Вы добавили максимум',
-                        icon: 'error',
-                        confirmButtonText: 'Закрыть'
-                      });
+                    if (response.responseJSON.error == 'max_cart_size') {
+                        swal({
+                            title: 'Ошибка!',
+                            text: `Максимальное число товара в корзине ${response.responseJSON.max_cart_size}. Оформите заказ, либо удалите лишние товары из корзины`,
+                            icon: 'error',
+                            button: 'Закрыть'
+                          });
+                    } else {
+                        swal({
+                            title: 'Ошибка!',
+                            text: 'В магазине недостаточно товаров. Вы добавили максимум',
+                            icon: 'error',
+                            button: 'Закрыть'
+                          });
+                    }
                 }
             })
         });
