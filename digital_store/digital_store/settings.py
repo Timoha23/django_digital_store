@@ -152,6 +152,8 @@ CSFR_FAILURE_VIEW = 'core.views.csfr_failure'
 
 STAFF_ROLES = ('admin', 'moderator')
 
+MAX_CART_SIZE = 5
+
 MESSAGE_TAGS = {
     messages.DEBUG: 'alert-info',
     messages.INFO: 'alert-info',
