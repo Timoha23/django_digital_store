@@ -19,6 +19,13 @@ class User(AbstractUser):
         default='user',
     )
 
+    image = models.ImageField(
+        default=None,
+        upload_to='users/profile_img/',
+        verbose_name='Изображение профиля',
+        blank=True,
+    )
+
     @property
     def is_seller(self):
         return self.role == 'seller'
