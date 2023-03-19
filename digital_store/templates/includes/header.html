@@ -1,17 +1,19 @@
+{% load thumbnail %}
+{% load static %}
 <div class="container">
     <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
     <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-dark text-decoration-none">
         <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>
     </a>
-
+    {% with request.resolver_match.view_name as view_name %}
     <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-        <li><a href="{% url 'shop:index' %}" class="nav-link px-2 link-secondary">Главная</a></li>
-        <li><a href="{% url 'shop:shop_list' %}" class="nav-link px-2 link-secondary">Магазины</a></li>
-        <li><a href="{% url 'shop:product_list' %}" class="nav-link px-2 link-dark">Товары</a></li>
+        <li><a href="{% url 'shop:index' %}" class="nav-link px-2 {% if view_name == 'shop:index' %}link-secondary{% else %}link-dark{% endif %}">Главная</a></li>
+        <li><a href="{% url 'shop:shop_list' %}" class="nav-link px-2 {% if view_name == 'shop:shop_list' %}link-secondary{% else %}link-dark{% endif %}">Магазины</a></li>
+        <li><a href="{% url 'shop:product_list' %}" class="nav-link px-2 {% if view_name == 'shop:product_list' %}link-secondary{% else %}link-dark{% endif %}">Товары</a></li>
         {% if user_have_shop %}
-          <li><a href="{% url 'shop:user_shops' %}" class="nav-link px-2 link-dark">Мои магазины</a></li>
+          <li><a href="{% url 'shop:user_shops' %}" class="nav-link px-2 {% if view_name == 'shop:user_shops' %}link-secondary{% else %}link-dark{% endif %}">Мои магазины</a></li>
         {% else %}
-          <li><a href="{% url 'shop:user_shops' %}" class="nav-link px-2 link-dark">Открыть магазин</a></li>
+          <li><a href="{% url 'shop:user_shops' %}" class="nav-link px-2 {% if view_name == 'shop:user_shops' %}link-secondary{% else %}link-dark{% endif %}">Открыть магазин</a></li>
         {% endif %}
         {% if is_staff %}
         <div class="dropdown">
@@ -27,18 +29,25 @@
         </div>
         {% endif %}
     </ul>
+    {% endwith %}
 
-    <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
-        <input type="search" class="form-control" placeholder="Search..." aria-label="Search">
+    <form action="{% url 'shop:search' %}" method="get" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
+        <input name="query" type="search" class="form-control" placeholder="Поиск..." aria-label="Поиск">
     </form>
     
     {% if request.user.is_authenticated %}
       <div class="dropdown text-end">
           <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-          <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
+          {% if request.user.image %}
+            {% thumbnail request.user.image "32x32" crop="center" as im %}
+              <img src="{{ im.url }}" alt="mdo" width="32" height="32" class="rounded-circle">
+            {% endthumbnail %}
+          {% else %}
+            <img src="{% static 'img/default/user.webp' %}" alt="mdo" width="32" height="32" class="rounded-circle">
+          {% endif %}
           </a>
             <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser" style="">
-            <li><a class="dropdown-item" href="#">Профиль</a></li>
+            <li><a class="dropdown-item" href="{% url 'users:user_profile' request.user.username %}">Профиль</a></li>
             <li><a class="dropdown-item" href="{% url 'users:favorites' %}">Избранное</a></li>
             <li><a class="dropdown-item" href="{% url 'users:orders' %}">Список покупок</a></li>
             <li><a class="dropdown-item" href="{% url 'cart:cart' %}">Корзина</a></li>

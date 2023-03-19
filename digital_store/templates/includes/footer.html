@@ -1,11 +1,13 @@
 <ul class="nav justify-content-center border-bottom pb-3 mb-3">
-    <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Главная</a></li>
-    <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Магазины</a></li>
-    <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Товары</a></li>
-    {% if user_have_shop %}
-      <li><a href="#" class="nav-link px-2 link-dark">Мои магазины</a></li>
-    {% else %}
-      <li><a href="#" class="nav-link px-2 link-dark">Открыть магазин</a></li>
-    {% endif %}
+  {% with request.resolver_match.view_name as view_name %}
+  <li><a href="{% url 'shop:index' %}" class="nav-link px-2 {% if view_name == 'shop:index' %}link-secondary{% else %}link-dark{% endif %}">Главная</a></li>
+  <li><a href="{% url 'shop:shop_list' %}" class="nav-link px-2 {% if view_name == 'shop:shop_list' %}link-secondary{% else %}link-dark{% endif %}">Магазины</a></li>
+  <li><a href="{% url 'shop:product_list' %}" class="nav-link px-2 {% if view_name == 'shop:product_list' %}link-secondary{% else %}link-dark{% endif %}">Товары</a></li>
+  {% if user_have_shop %}
+    <li><a href="{% url 'shop:user_shops' %}" class="nav-link px-2 {% if view_name == 'shop:user_shops' %}link-secondary{% else %}link-dark{% endif %}">Мои магазины</a></li>
+  {% else %}
+    <li><a href="{% url 'shop:user_shops' %}" class="nav-link px-2 {% if view_name == 'shop:user_shops' %}link-secondary{% else %}link-dark{% endif %}">Открыть магазин</a></li>
+  {% endif %}
+  {% endwith %}
 </ul>
 <p class="text-center text-muted">© 2023 Digital Store</p>

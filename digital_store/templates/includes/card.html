@@ -21,16 +21,19 @@
             <div class="card-body">
               <a href="{% url 'shop:product' product.id %}" class="stretched-link"></a>
               <h5 class="card-title">{{ product.name }}</h5>
-              <h6 class="card-title">Магазин: {{ product.shop.name }}</h6>
+              <div class="col" style="z-index:2; position: relative;">
+                <h6 class="card-title">Магазин: <a href="{% url 'shop:shop' product.shop.id %}" class="custom-link">{{ product.shop.name }}</a></h6>
+              </div>
               {% if product.avg_rating %}
                 <p>Рейтинг товара: {{ product.avg_rating|floatformat:"0" }}/5⭐</p>
               {% else %}
                 <p>Рейтинг товара: отзывов нет</p>
               {% endif %}
+                <p><b>Цена: {{product.price }} ₽</b></p>
               <div class="row row-cols-auto">
                 {% for category in product.category.all %}
                   <div class="col" style="z-index:2; position: relative;">
-                    <a href="{% url 'shop:index' %}" class="btn btn-light btn-custom-category">
+                    <a href="{% url 'shop:category' category.slug %}" class="btn btn-light btn-custom-category" style="font-size:12px">
                       {{ category.name }}
                     </a>
                   </div>
@@ -44,7 +47,7 @@
                   <small class="text-muted">{{ product.created_date }}</small>
                 </div>
               </div>
-              {% if product.shop.owner != request.user %}
+              {% if product.shop.owner != request.user and request.user.is_authenticated %}
                 <hr class="hr-dashed-gradient"></hr>
                 <div style="z-index:2; position: relative;">
                   <div class="btn-group justify-content-start">

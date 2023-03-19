@@ -26,8 +26,8 @@
 
       <div class="col-lg-4 col-md-6 mb-3 mb-lg-0">
         <!-- Data -->
-        <p><strong>Название: {{ obj.product.name }}</strong></p>
-        <p>Магазин: {{ obj.product.shop.name }}</p>
+        <p><strong>Название: <a href="{% url 'shop:product' obj.product.id %}" style="text-decoration: none; color:black">{{ obj.product.name }}</strong></p></a>
+        <p>Магазин: <a href="{% url 'shop:shop' obj.product.shop.id %}" style="text-decoration: none; color:black">{{ obj.product.shop.name }}</p></a>
         <p>Цена за штуку: {{ obj.price }} ₽</p>
         <p>Количество: {{ obj.count_items }} шт.</p>
         <!-- Data -->

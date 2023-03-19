@@ -17,7 +17,7 @@
 
   <div class="col-lg-5 col-md-6 mb-4 mb-lg-0">
     <!-- Data -->
-    <p><strong>Название: {{ obj.product.name }}</strong></p>
+    <p><strong>Название: <a href="{% url 'shop:product' obj.product.id %}" style="text-decoration: none; color:black">{{ obj.product.name }}</strong></p></a>
     <p>Магазин: {{ obj.product.shop.name }}</p>
     <p>Цена за штуку: {{ obj.product.price }} ₽</p>
     <div>
@@ -29,7 +29,11 @@
           <button class="btn remove-count-btn{{ obj.id }}"><i class="fa-solid fa-minus"></i></button>
         {% endif %}
       </form>
-      <p style="display:inline">Количество: <p style="display:inline" class="count-items{{ obj.id }}">{{ obj.count_items }}</p> шт.
+      {% if obj.product.count != 0 %}
+        <p style="display:inline">Количество: <p style="display:inline" class="count-items{{ obj.id }}">{{ obj.count_items }}</p> шт.
+      {% else %}
+        <p style="display:inline; color:#B22222;">Нет в наличии
+      {% endif %}
       <form action="{% url 'cart:add_count_items'%}" method="POST" class="add-count-form" id="{{ obj.id }}">
         {% csrf_token %}
         {% if obj.count_items == obj.product.count %}
