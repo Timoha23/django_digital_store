@@ -1,9 +1,10 @@
 from functools import wraps
 
 from django.http import Http404
-from django.db.models import Avg, Prefetch
+from django.db.models import Avg
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.core.paginator import Paginator
 
 from cart.models import OrderHistory
@@ -12,7 +13,7 @@ from digital_store.settings import STAFF_ROLES
 from moderation.models import AcceptRejectList
 from reviews.models import Review
 from reviews.forms import ReviewForm
-from .models import Shop, Product, Item
+from .models import Shop, Product, Item, Category
 from .forms import ShopForm, ProductForm, ItemForm
 
 
@@ -198,7 +199,7 @@ def product(request, product_id):
         favorites = request.user.favorite.all().values_list('product__id',
                                                             flat=True)
         cart = request.user.cart.all().values_list('product__id',
-                                                       flat=True)
+                                                   flat=True)
     else:
         favorites = []
         cart = []
@@ -243,7 +244,7 @@ def product_list(request):
         favorites = request.user.favorite.all().values_list('product__id',
                                                             flat=True)
         cart = request.user.cart.all().values_list('product__id',
-                                                       flat=True)
+                                                   flat=True)
     else:
         favorites = []
         cart = []
@@ -466,3 +467,59 @@ def delete_item(request, item_id):
     product.save()
     item.delete()
     return redirect('shop:product', item.product.id)
+
+
+def search(request):
+    """
+    Поиск товаров
+    """
+
+    query = request.GET.get('query')
+
+    products = (Product.objects.filter(status='Accept', name__icontains=query)
+                .select_related('shop__owner')
+                .prefetch_related('category')
+                .prefetch_related('review')
+                .prefetch_related('cart')
+                .annotate(avg_rating=Avg('review__rating'))
+                .order_by('-created_date')
+                .order_by('-is_available')
+                )
+
+    context = {
+        'query': query,
+    }
+
+    context.update(get_context_paginator(products, request, is_products=True))
+
+    return render(request, context=context,
+                  template_name='shop/search_product.html')
+
+
+def category(request, slug):
+    """
+    Отображение товаров определенной категории
+    """
+
+    if not Category.objects.filter(slug=slug).exists():
+        messages.error(request, f'Категории {slug} не существует')
+        return redirect('shop:index')
+
+    products = (Product.objects.filter(status='Accept', category__slug=slug)
+                .select_related('shop__owner')
+                .prefetch_related('category')
+                .prefetch_related('review')
+                .prefetch_related('cart')
+                .annotate(avg_rating=Avg('review__rating'))
+                .order_by('-created_date')
+                .order_by('-is_available')
+                )
+
+    for product in products:
+        print(product.image)
+    context = {
+        'slug': slug,
+    }
+    context.update(get_context_paginator(products, request, is_products=True))
+
+    return render(request, context=context, template_name='shop/category.html')
