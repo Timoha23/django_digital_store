@@ -1,8 +1,9 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Avg
 from django.shortcuts import render, redirect, get_object_or_404
- 
+
 from cart.models import OrderHistory
 from shop.models import Product, Shop
 from shop.views import get_context_paginator
@@ -62,9 +63,12 @@ def reviews_shop_list(request, shop_id):
     Список отзывов о всех продуктах магазина
     """
 
-    shop = get_object_or_404(Shop, pk=shop_id)
+    shop = get_object_or_404(
+        (Shop.objects.all().select_related('owner')
+         .annotate(avg_rating=Avg('shop_in_product__review__rating'))),
+        pk=shop_id)
     shop_reviews = (Review.objects.filter(product__shop=shop)
-                    .select_related('user'))
+                    .select_related('user', 'product'))
 
     context = {
         'shop': shop,
