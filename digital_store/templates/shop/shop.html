@@ -10,7 +10,8 @@
             <a href="#" class="btn btn-primary my-2">Профиль продавца</a>
             <a href="{% url 'review:reviews_shop_list' shop.id %}" class="btn btn-secondary my-2">Посмотреть отзывы</a>
             {% if shop.owner == request.user %}
-              <a href="{% url 'shop:create_product' shop.id %}" class="btn btn-secondary my-2">Добавить товар</a>
+              <a href="{% url 'shop:create_product' shop.id %}" class="btn btn-secondary my-2">Добавить продукт</a>
+              <a href="{% url 'shop:edit_shop' shop.pk %}" class="btn btn-secondary">Редактировать магазин</a>
             {% endif %}
             {% if shop.avg_rating %}
               <p>Рейтинг магазина: {{ shop.avg_rating|floatformat:"0" }}/5⭐</p>
