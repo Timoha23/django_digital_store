@@ -7,17 +7,22 @@
         <div class="col-lg-6 col-md-8 mx-auto">
           <h1 class="fw-light">Отзывы магазина <b>{{ shop.name }}</b></h1>
           <p>
-            <a href="#" class="btn btn-primary my-2">Профиль продавца</a>
+            <a href="{% url 'users:user_profile' shop.owner %}" class="btn btn-primary my-2">Профиль продавца</a>
             <a href="#" class="btn btn-secondary my-2">Посмотреть отзывы</a>
             {% if shop.owner == request.user %}
               <a href="{% url 'shop:create_product' shop.id %}" class="btn btn-secondary my-2">Добавить товар</a>
             {% endif %}
-            <p>Средняя оценка: 4/5⭐</p>
+            {% if shop.avg_rating %}
+              <p>Рейтинг магазина: {{ shop.avg_rating|floatformat:"0" }}/5⭐</p>
+            {% else %}
+              <p>Рейтинг магазина: отзывов нет</p>
+            {% endif %}
           </p>
         </div>
       </div>
     </section>
-     <div class="album py-5 bg-light" style="margin:auto;width:60%">
+    <hr class="hr-dashed-gradient"></hr>
+     <div class="album py-5" style="margin:auto;width:60%">
         <div class="py-5 text-center container">
           <h4>Отзывы</h4>
         </div>
