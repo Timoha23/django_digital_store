@@ -362,6 +362,8 @@ def create_product(request, shop_id):
     shop = get_object_or_404(Shop, id=shop_id)
 
     if shop.status != 'Accept':
+        messages.error(request, f'Вы не можете добавить товар. '
+                                f'Ваш магазин имеет статус: {shop.get_status_display()}.')
         return redirect('shop:shop', shop_id)
 
     if form.is_valid():
