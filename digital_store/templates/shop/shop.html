@@ -12,7 +12,11 @@
             {% if shop.owner == request.user %}
               <a href="{% url 'shop:create_product' shop.id %}" class="btn btn-secondary my-2">Добавить товар</a>
             {% endif %}
-            <p>Средняя оценка: 4/5⭐</p>
+            {% if shop.avg_rating %}
+              <p>Рейтинг магазина: {{ shop.avg_rating|floatformat:"0" }}/5⭐</p>
+            {% else %}
+              <p>Рейтинг магазина: отзывов нет</p>
+            {% endif %}
           </p>
         </div>
       </div>
