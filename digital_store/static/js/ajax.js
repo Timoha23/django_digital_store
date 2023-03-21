@@ -66,6 +66,7 @@ $(document).ready(function() {
     addRemoveFavorite()
     addToCart()
     delFromCart()
+    acceptRejectProduct()
 }); 
 
 
@@ -190,6 +191,41 @@ function delFromCart() {
         });
     });
 }
+
+
+// function acceptRejectProduct() {
+//     $('.change-product-status-form').each((index, el) => {
+//         $(el).on('submit', (e) => {
+//             e.preventDefault();
+//             const product_id = $(el).attr('id')
+//             const url = $(el).attr('action')
+
+//             $.ajax({
+//                 type: 'POST',
+//                 url: url,
+//                 data: {
+//                     'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+//                     'product_id': product_id,
+//                 },
+//                 success: function(response){
+//                     console.log(response.product_status)
+//                     if (response.product_status === 'Accept') {
+//                         $(el).find('.btn').removeClass('btn-outline-success').addClass('btn-outline-danger')
+//                         $(el).find('.btn').text('Отклонить')
+//                         $(`.get-status-display-${product_id}`).text('Одобрено')
+//                     } else {
+//                         $(el).find('.btn').removeClass('btn-outline-danger').addClass('btn-outline-success')
+//                         $(el).find('.btn').text('Одобрить')
+//                         $(`.get-status-display-${product_id}`).text('Отклонено')
+//                     }
+//                 },
+//                 error: function(response){
+//                     console.log('error')
+//                 }
+//             })
+//         });
+//     });
+// }
 
 // $(document).ready(function(){
 //     $("#change_count_minus").click(function(){

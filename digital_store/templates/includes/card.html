@@ -47,7 +47,7 @@
                   <small class="text-muted">{{ product.created_date }}</small>
                 </div>
               </div>
-              {% if product.shop.owner != request.user and request.user.is_authenticated %}
+              {% if product.shop.owner != request.user and request.user.is_authenticated and request.resolver_match.view_name != 'moderation:moderation_product' %}
                 <hr class="hr-dashed-gradient"></hr>
                 <div style="z-index:2; position: relative;">
                   <div class="btn-group justify-content-start">
@@ -92,6 +92,8 @@
                       </form>
                   </div>
                 </div>
+              {% else %}
+              <hr></hr>
               {% endif %}
               {% if request.resolver_match.view_name == 'moderation:moderation_product' %}
                 <div class="text-center" style="z-index:2; position: relative;">

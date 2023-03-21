@@ -54,11 +54,17 @@
                       <td>{{ element.update_date }}</td>
                       <td>
                         {% if element.product %}
-                          <a href="{% url 'moderation:accept_product' element.product.id %}" class="btn btn-outline-success">Одобрить</a>
-                          <a href="{% url 'moderation:reject_product' element.product.id %}" class="btn btn-outline-danger">Отклонить</a>
+                          {% if element.product.status == 'Reject'%}
+                            <a href="{% url 'moderation:accept_product' element.product.id %}" class="btn btn-outline-success">Одобрить</a>
+                          {% elif element.product.status == 'Accept'%}
+                            <a href="{% url 'moderation:reject_product' element.product.id %}" class="btn btn-outline-danger">Отклонить</a>
+                          {% endif %}
                         {% else %}
-                          <a href="{% url 'moderation:accept_shop' element.shop.id %}" class="btn btn-outline-success">Одобрить</a>
-                          <a href="{% url 'moderation:reject_shop' element.shop.id %}" class="btn btn-outline-danger">Отклонить</a>
+                          {% if element.shop.status == 'Reject'%}
+                            <a href="{% url 'moderation:accept_shop' element.shop.id %}" class="btn btn-outline-success">Одобрить</a>
+                          {% elif element.shop.status == 'Accept'%}
+                            <a href="{% url 'moderation:reject_shop' element.shop.id %}" class="btn btn-outline-danger">Отклонить</a>
+                          {% endif %}
                         {% endif %}
                       </td>
                     </tr>
