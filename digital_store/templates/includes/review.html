@@ -33,8 +33,10 @@
       </div>
       <div class="client-comment">
           <p>{{ review.text }}</p>
-          <hr style="margin-top:10px"></hr>
-          <p><i>Отзыв о продукте: {{ review.product }}</i></p>
+          {% if request.resolver_match.view_name == 'review:reviews_shop_list' %}
+            <hr style="margin-top:10px"></hr>
+            <p><i>Отзыв о продукте: {{ review.product }}</i></p>
+          {% endif %}
       </div>
     </div>
   </div>
