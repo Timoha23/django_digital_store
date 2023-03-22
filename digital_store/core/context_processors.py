@@ -1,4 +1,5 @@
 from shop.models import Shop
+from django.utils import timezone
 
 
 def get_user_have_shop(request):
@@ -15,3 +16,8 @@ def get_user_is_staff(request):
     if request.user.is_authenticated and request.user.role in STAFF_ROLES:
         return {'is_staff': True}
     return {'is_staff': False}
+
+
+def get_year(request):
+    year = timezone.now().year
+    return {'year': year}
