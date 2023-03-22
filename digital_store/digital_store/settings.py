@@ -74,6 +74,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'core.context_processors.get_user_have_shop',
                 'core.context_processors.get_user_is_staff',
+                'core.context_processors.get_year',
             ],
         },
     },
