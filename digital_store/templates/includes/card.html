@@ -93,7 +93,7 @@
                   </div>
                 </div>
               {% else %}
-              <hr></hr>
+              <hr class="hr-dashed-gradient"></hr>
               {% endif %}
               {% if request.resolver_match.view_name == 'moderation:moderation_product' %}
                 <div class="text-center" style="z-index:2; position: relative;">
@@ -104,7 +104,6 @@
               <!--Плашка для владельца магазина-->
                 {% if product.shop.owner == request.user %}
                   <div>
-                    <hr></hr>
                     <h5>Информация для владельца:</h3>
                       {% if product.visibile == True %}
                         <p class="accept">Видимость товара: {{ product.visibile }}
