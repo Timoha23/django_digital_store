@@ -1,7 +1,7 @@
 {% load thumbnail %}
 {% load static %}
 {% comment %} <div class="product-link"> {% endcomment %}
-{% if product.is_available is False %}
+{% if product.is_available is False and request.resolver_match.view_name != 'moderation:moderation_product'%}
   <div class="is_unavailable">
 {% else %}
     <div>
@@ -96,9 +96,23 @@
               <hr class="hr-dashed-gradient"></hr>
               {% endif %}
               {% if request.resolver_match.view_name == 'moderation:moderation_product' %}
-                <div class="text-center" style="z-index:2; position: relative;">
-                  <a href="{% url 'moderation:accept_product' product.id %}" class="btn btn-outline-success">Одобрить</a>
-                  <a href="{% url 'moderation:reject_product' product.id %}" class="btn btn-outline-danger">Отклонить</a>
+                <div class="row text-center" style="z-index:2; position: relative;">
+                  <div class="col">
+                    <form method="POST" action="{% url 'moderation:accept_product' product.id %}">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-outline-success">
+                        Одобрить
+                      </button>
+                    </form>
+                  </div>
+                  <div class="col">
+                    <form method="POST" action="{% url 'moderation:reject_product' product.id %}">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-outline-danger">
+                        Отклонить
+                      </button>
+                    </form>
+                  </div>
                 </div>
               {% else %}
               <!--Плашка для владельца магазина-->
