@@ -10,7 +10,7 @@ from django.views.decorators.cache import cache_page
 
 from core.pagination import get_context_paginator
 from cart.models import OrderHistory
-from digital_store.settings import STAFF_ROLES
+from digital_store.settings import STAFF_ROLES, CACHE_TIME
 from moderation.models import AcceptRejectList
 from reviews.models import Review
 from reviews.forms import ReviewForm
@@ -46,7 +46,7 @@ def owner_required(func):
 ###############################################################
 
 
-@cache_page(60 * 2)
+@cache_page(CACHE_TIME)
 def index(request):
     """
     Главная страница проекта
@@ -61,8 +61,19 @@ def index(request):
                 .annotate(avg_rating=Avg('review__rating'))
                 )
 
+    if request.user.is_authenticated:
+        favorites = request.user.favorite.all().values_list('product__id',
+                                                            flat=True)
+        cart = request.user.cart.all().values_list('product__id',
+                                                   flat=True)
+    else:
+        favorites = []
+        cart = []
+
     context = {
         'products': products,
+        'favorites': favorites,
+        'cart': cart,
     }
 
     return render(
@@ -132,7 +143,7 @@ def shop(request, shop_id):
     return render(request, context=context, template_name='shop/shop.html')
 
 
-@cache_page(60 * 2)
+@cache_page(CACHE_TIME)
 def shop_list(request):
     """
     Страница со всеми магазинами
@@ -215,7 +226,7 @@ def product(request, product_id):
     )
 
 
-@cache_page(60 * 2)
+@cache_page(CACHE_TIME)
 def product_list(request):
     """
     Страница со всеми продуктами
