@@ -1,12 +1,11 @@
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg
 from django.shortcuts import render, redirect, get_object_or_404
 
 from cart.models import OrderHistory
+from core.pagination import get_context_paginator
 from shop.models import Product, Shop
-from shop.views import get_context_paginator
 from .models import Review
 from .forms import ReviewForm
 
