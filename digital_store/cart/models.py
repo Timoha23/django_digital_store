@@ -82,7 +82,7 @@ class OrderHistory(models.Model):
     product = models.ForeignKey(
         Product,
         null=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         verbose_name='Продукт',
         related_name='order_history',
     )
