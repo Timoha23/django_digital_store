@@ -340,6 +340,7 @@ def user_shops(request):
     )
 
 
+@require_POST
 @owner_required
 def delete_shop(request, shop_id):
     """
