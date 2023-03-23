@@ -134,7 +134,10 @@
                   <!---->
                   <div class="btn-group" style="z-index:2; position: relative;">
                     <a href="{% url 'shop:create_item' product.id %}" class="btn btn-sm btn-outline-secondary">Добавить товар</a>
-                    <a href="{% url 'shop:delete_product' product.id %}" class="btn btn-sm btn-outline-secondary">Удалить продукт</a>
+                    <form method="POST" action="{% url 'shop:delete_product' product.id %}">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-outline-secondary">Удалить продукт</button>
+                    </form>
                     <a href="{% url 'shop:edit_product' product.shop.id product.id %}" class="btn btn-sm btn-outline-secondary">Изменить продукт</a>
                   </div>
                 {% endif %}
