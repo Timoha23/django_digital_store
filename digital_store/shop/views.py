@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.views.decorators.http import require_POST
 
 from cart.models import OrderHistory
 from users.models import Favorite
@@ -457,12 +458,13 @@ def create_item(request, product_id):
     )
 
 
+@require_POST
 @owner_required
 def delete_item(request, item_id):
     """
     Удаление товара из продукта
     """
-
+    print(request.method)
     item = get_object_or_404(Item, id=item_id)
     product = item.product
     product.count -= 1
