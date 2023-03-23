@@ -90,7 +90,6 @@ def accept_shop(request, shop_id):
     return redirect(get_last_page(request))
 
 
-@require_POST
 @moderator_required
 def reject_shop(request, shop_id):
     """
@@ -195,7 +194,6 @@ def accept_product(request, product_id):
     return redirect('moderation:moderation_product')
 
 
-@require_POST
 @moderator_required
 def reject_product(request, product_id):
     """
