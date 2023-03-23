@@ -37,12 +37,10 @@ def order_list(request):
               .order_by('-created_date')
               )
 
-    for o in orders:
-        print(o.order_history.all())
+    context = {}
 
-    context = {
-        'orders': orders,
-    }
+    context.update(get_context_paginator(orders, request))
+
     return render(request, context=context, template_name='users/orders.html')
 
 
