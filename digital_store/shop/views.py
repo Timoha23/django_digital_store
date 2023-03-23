@@ -412,7 +412,8 @@ def delete_product(request, product_id):
     """
 
     product = get_object_or_404(Product, id=product_id)
-
+    for pr in product.order_history.all():
+        pr.order.delete()
     product.delete()
     return redirect('shop:shop', product.shop.id)
 
