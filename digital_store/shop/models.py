@@ -102,7 +102,7 @@ class Product(models.Model):
     shop = models.ForeignKey(
         Shop,
         on_delete=models.CASCADE,
-        related_name='shop_in_product',
+        related_name='products',
         verbose_name='Магазин',
     )
     price = models.PositiveIntegerField(
