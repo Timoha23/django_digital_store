@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.http import require_POST
+from django.views.decorators.cache import cache_page
 
 from core.pagination import get_context_paginator
 from cart.models import OrderHistory
@@ -45,6 +46,7 @@ def owner_required(func):
 ###############################################################
 
 
+@cache_page(60 * 2)
 def index(request):
     """
     Главная страница проекта
@@ -130,6 +132,7 @@ def shop(request, shop_id):
     return render(request, context=context, template_name='shop/shop.html')
 
 
+@cache_page(60 * 2)
 def shop_list(request):
     """
     Страница со всеми магазинами
@@ -212,6 +215,7 @@ def product(request, product_id):
     )
 
 
+@cache_page(60 * 2)
 def product_list(request):
     """
     Страница со всеми продуктами
