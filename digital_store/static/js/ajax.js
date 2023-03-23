@@ -1,5 +1,13 @@
 $(document).ready(function() {
-    // ПЛЮС МИНУС В КОРЗИНЕ
+
+    addCountItemsCart()
+    removeCountItemsCart()
+    addRemoveFavorite()
+    addToCart()
+    delFromCart()
+}); 
+
+function addCountItemsCart() {
     $('.add-count-form').submit(function(e){
         e.preventDefault()
         const obj_id = $(this).attr('id')
@@ -31,7 +39,9 @@ $(document).ready(function() {
             }
         });
     });
+}
 
+function removeCountItemsCart() {
     $('.remove-count-form').submit(function(e){
         e.preventDefault()
         const obj_id = $(this).attr('id')
@@ -62,13 +72,7 @@ $(document).ready(function() {
             }
         });
     });
-
-    addRemoveFavorite()
-    addToCart()
-    delFromCart()
-    acceptRejectProduct()
-}); 
-
+}
 
 function addRemoveFavorite() {
     $('.favorite-form').each((index, el) => {
@@ -191,93 +195,3 @@ function delFromCart() {
         });
     });
 }
-
-
-// function acceptRejectProduct() {
-//     $('.change-product-status-form').each((index, el) => {
-//         $(el).on('submit', (e) => {
-//             e.preventDefault();
-//             const product_id = $(el).attr('id')
-//             const url = $(el).attr('action')
-
-//             $.ajax({
-//                 type: 'POST',
-//                 url: url,
-//                 data: {
-//                     'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
-//                     'product_id': product_id,
-//                 },
-//                 success: function(response){
-//                     console.log(response.product_status)
-//                     if (response.product_status === 'Accept') {
-//                         $(el).find('.btn').removeClass('btn-outline-success').addClass('btn-outline-danger')
-//                         $(el).find('.btn').text('Отклонить')
-//                         $(`.get-status-display-${product_id}`).text('Одобрено')
-//                     } else {
-//                         $(el).find('.btn').removeClass('btn-outline-danger').addClass('btn-outline-success')
-//                         $(el).find('.btn').text('Одобрить')
-//                         $(`.get-status-display-${product_id}`).text('Отклонено')
-//                     }
-//                 },
-//                 error: function(response){
-//                     console.log('error')
-//                 }
-//             })
-//         });
-//     });
-// }
-
-// $(document).ready(function(){
-//     $("#change_count_minus").click(function(){
-//         var data = {
-//             count_items: $("#count_items").text(),
-//             object_id: $("#count_items").attr('object_id'),
-//             action: 'minus',
-//             csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken").val(),
-//         }
-//         $.ajax({
-//             url: "change_count_items/",
-//             type: 'POST',
-//             data: data,
-//             success: function(response) {
-//                 console.log(data)
-//                 $("#count_items").text(response.count_items)
-//                 $("#full_price").text(response.full_price)
-//             },
-//             error: function(response) {
-//                 console.log('error')
-//             }
-//         });
-//     });
-
-// });
-
-// $(document).ready(function(){
-//     $("#change_count_plus").click(function(){
-
-//         console.log(sss)
-//         var data = {
-//             count_items: $("#count_items").text(),
-//             object_id: $("#count_items").attr('object_id'),
-//             action: 'plus',
-
-//             full_cart_price: $("#full-cart-price").text(),
-//             csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken").val(),
-//         }
-//         $.ajax({
-//             url: "change_count_items/",
-//             type: 'POST',
-//             data: data,
-//             success: function(response) {
-//                 console.log(data)
-//                 $("#count_items").text(response.count_items)
-//                 $("#full_price").text(response.full_price)
-//                 $("#full-cart-price").text(response.full_cart_price)
-//             },
-//             error: function(response) {
-//                 console.log('error')
-//             }
-//         });
-//     });
-
-// });
