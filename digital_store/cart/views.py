@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.core.cache import cache
 
 from digital_store.settings import MAX_CART_SIZE
 from shop.models import Product
@@ -29,6 +30,7 @@ def del_from_cart(request):
             'product_name': product.name,
             'full_cart_price': full_cart_price,
         }
+        cache.clear()
         return JsonResponse(context, status=200)
     return JsonResponse({"success": False}, status=400)
 
@@ -82,6 +84,7 @@ def add_to_cart(request):
         context = {
             'product_name': product.name,
         }
+        cache.clear()
         return JsonResponse(context, status=200)
     return JsonResponse({"success": False}, status=400)
 
