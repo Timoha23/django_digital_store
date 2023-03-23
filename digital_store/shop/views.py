@@ -417,6 +417,7 @@ def edit_product(request, shop_id, product_id):
     )
 
 
+@require_POST
 @owner_required
 def delete_product(request, product_id):
     """
