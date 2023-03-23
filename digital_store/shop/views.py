@@ -140,7 +140,7 @@ def shop_list(request):
 
     shops = (Shop.objects.filter(status='Accept')
              .select_related('owner')
-             .annotate(avg_rating=Avg('shop_in_product__review__rating'))
+             .annotate(avg_rating=Avg('products__review__rating'))
              .order_by('-created_date'))
 
     context = {
@@ -165,7 +165,7 @@ def product(request, product_id):
             avg_rating=Avg('review__rating')),
         pk=product_id)
 
-    shop = Shop.objects.get(shop_in_product=product_id)
+    shop = Shop.objects.get(products=product_id)
     items = Item.objects.filter(product=product, status='sale')
     reviews = (Review.objects.filter(product=product)
                .select_related('user')
@@ -314,7 +314,7 @@ def user_shops(request):
 
     shops = (Shop.objects.select_related('owner')
              .filter(owner=request.user)
-             .annotate(avg_rating=Avg('shop_in_product__review__rating')))
+             .annotate(avg_rating=Avg('products__review__rating')))
 
     context = {
         'shops': shops,
@@ -338,6 +338,11 @@ def delete_shop(request, shop_id):
     """
 
     shop = get_object_or_404(Shop, id=shop_id, owner=request.user)
+
+    # удаляем все ордеры связаныне с данным магазином (с его продуктами)
+    for pr in shop.products.all():
+        for o_h in pr.order_history.all():
+            o_h.order.delete()
     shop.delete()
     return redirect('shop:index')
 
@@ -416,8 +421,10 @@ def delete_product(request, product_id):
     """
 
     product = get_object_or_404(Product, id=product_id)
-    for pr in product.order_history.all():
-        pr.order.delete()
+
+    # удаляем все ордеры связаныне с данным продуктом
+    for o_h in product.order_history.all():
+        o_h.order.delete()
     product.delete()
     return redirect('shop:shop', product.shop.id)
 
