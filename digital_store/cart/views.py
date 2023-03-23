@@ -1,11 +1,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Sum
 from django.http import JsonResponse
 
 from digital_store.settings import MAX_CART_SIZE
-from shop.models import Product, Item
+from shop.models import Product
 from core.actions import get_or_none, is_ajax
 from .models import Cart, Order, OrderHistory
 
@@ -135,6 +134,7 @@ def make_order(request):
             messages.error(request, f'Нельзя оформить заказ на 0 товаров. Ошибка: {product.name}.')
             return redirect('cart:cart')
 
+    order = Order.objects.create()
     for obj in cart:
         product = obj.product
         price = obj.product.price
@@ -147,7 +147,6 @@ def make_order(request):
             messages.error(request, f'К сожалению {product.name} имеет в наличии только {len(items)} товаров. У вас указано {count_items}')
             return redirect('cart:cart')
 
-        order = Order.objects.create()
         order_history = OrderHistory.objects.create(
             user=request.user,
             order=order,
@@ -166,7 +165,7 @@ def make_order(request):
         product.count -= len(items)
         product.save()
 
-        cart.delete()
+    cart.delete()
 
     messages.success(request, 'Заказ успешно оформлен!')
 
