@@ -25,7 +25,7 @@ class Review(models.Model):
 
     text = models.CharField(
         max_length=1024,
-        verbose_name='Отзыв',
+        verbose_name='Текст отзыва',
     )
 
     rating = models.PositiveIntegerField(
@@ -49,3 +49,7 @@ class Review(models.Model):
 
     def __str__(self):
         return f'От {self.user.username} отзыв для {self.product}'
+
+    class Meta:
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
