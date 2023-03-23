@@ -1,30 +1,18 @@
 from functools import wraps
 
-from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
+from core.pagination import get_context_paginator
 from digital_store.settings import STAFF_ROLES
 from shop.models import Shop, Product
-from core.actions import is_ajax
 from .models import AcceptRejectList
 from .forms import RejectForm
 
 
 def get_last_page(request):
     return request.META.get('HTTP_REFERER')
-
-
-def get_context_paginator(queryset, request):
-    count_posts = 10
-    paginator = Paginator(queryset, count_posts)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    return {
-        'page_obj': page_obj,
-    }
 
 
 def moderator_required(func):
