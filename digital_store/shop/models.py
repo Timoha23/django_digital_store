@@ -55,6 +55,10 @@ class Shop(models.Model):
 
     def __str__(self):
         return self.name
+    
+    class Meta:
+        verbose_name = 'Магазин'
+        verbose_name_plural = 'Магазины'
 
 
 class Category(models.Model):
@@ -81,16 +85,15 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
+
 
 class Product(models.Model):
     """
     Модель продукта
     """
-
-    # @staticmethod
-    # def get_default_category():
-    #     default_category = Category.objects.get(name='default')
-    #     return default_category
 
     name = models.CharField(
         max_length=128,
@@ -153,6 +156,10 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = 'Продукт'
+        verbose_name_plural = 'Продукты'
+
 
 class Item(models.Model):
     """
@@ -182,7 +189,11 @@ class Item(models.Model):
     )
 
     def __str__(self):
-        return self.item[:5]
+        return self.item
+
+    class Meta:
+        verbose_name = 'Товар'
+        verbose_name_plural = 'Товары'
 
 
 class BrowsingHistory(models.Model):
