@@ -38,6 +38,13 @@ class Cart(models.Model):
         verbose_name='Дата внесения в корзину',
     )
 
+    def __str__(self):
+        return f'{self.user} купил {self.product}'
+
+    class Meta:
+        verbose_name = 'Корзина'
+        verbose_name_plural = 'Корзины'
+
 
 class Order(models.Model):
 
@@ -48,6 +55,10 @@ class Order(models.Model):
 
     def __str__(self):
         return str(self.pk)
+
+    class Meta:
+        verbose_name = 'Заказ'
+        verbose_name_plural = 'Заказы'
 
 
 class OrderHistory(models.Model):
@@ -111,3 +122,10 @@ class OrderHistory(models.Model):
         auto_now_add=True,
         verbose_name='Дата создания заказа',
     )
+
+    def __str__(self):
+        return str(self.order.pk)
+
+    class Meta:
+        verbose_name = 'История покупки'
+        verbose_name_plural = 'История покупок'
