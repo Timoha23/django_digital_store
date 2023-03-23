@@ -33,10 +33,26 @@
       {% endif %}
     {% endif %}
     <hr></hr>
-    <div class="text-center">
+    <div class="container text-center">
       {% if request.resolver_match.view_name == 'moderation:moderation_shop' %}
-        <a href="{% url 'moderation:accept_shop' shop.id %}" class="btn btn-outline-success">Одобрить</a>
-        <a href="{% url 'moderation:reject_shop' shop.id %}" class="btn btn-outline-danger">Отклонить</a>
+        <div class="row">
+          <div class="col">
+          <form method="POST" action="{% url 'moderation:accept_shop' shop.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-success">
+              Одобрить
+            </button>
+          </form>
+          </div>
+          <div class="col">
+          <form method="POST" action="{% url 'moderation:reject_shop' shop.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger">
+              Отклонить
+            </button>
+          </form>
+          </div>
+        </div>
       {% else %}
         <a href="{% url 'shop:shop' shop.pk %}" class="btn btn-outline-secondary">Перейти в магазин</a>
         {% if request.user == shop.owner %}
