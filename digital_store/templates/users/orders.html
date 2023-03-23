@@ -11,7 +11,7 @@
       </div>
     </section>
     <hr class="hr-dashed-gradient"></hr>
-    {% for order in orders %}
+    {% for order in page_obj %}
       {% include 'includes/order.html '%}
     {% endfor %}
   </main>
