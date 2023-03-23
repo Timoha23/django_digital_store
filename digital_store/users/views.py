@@ -1,13 +1,13 @@
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib import messages
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 
-from shop.views import get_context_paginator, Product
+from shop.views import Product
 from cart.models import Order
-from core.actions import get_or_none, is_ajax
+from core.pagination import get_context_paginator
+from core.actions import is_ajax
 from .forms import CreationForm
 from .models import Favorite
 
