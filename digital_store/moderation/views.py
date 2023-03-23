@@ -162,25 +162,7 @@ def moderation_product(request):
     )
 
 
-@moderator_required
-def change_product_status(request):
-    """
-    Изменение статуса продукта в модерации
-    """
-
-    if is_ajax(request=request) and request.method == 'POST':
-        data = request.POST
-        product = get_object_or_404(Product, id=data['product_id'])
-        if product.status == 'Accept':
-            product.status = 'Reject'
-        elif product.status == 'Reject':
-            product.status = 'Accept'
-        product.save()
-        context = {'product_status': product.status}
-        return JsonResponse(context, status=200)
-    return JsonResponse({"success": False}, status=400)
-
-
+@require_POST
 @moderator_required
 def accept_product(request, product_id):
     """
@@ -213,6 +195,7 @@ def accept_product(request, product_id):
     return redirect('moderation:moderation_product')
 
 
+@require_POST
 @moderator_required
 def reject_product(request, product_id):
     """
