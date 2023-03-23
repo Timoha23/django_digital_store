@@ -14,5 +14,8 @@
     {% for order in page_obj %}
       {% include 'includes/order.html '%}
     {% endfor %}
+    <div class="d-flex align-items-center justify-content-center">
+      {% include 'includes/paginator.html'%}
+    </div>
   </main>
 {% endblock content %}
