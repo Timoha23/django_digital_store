@@ -5,7 +5,7 @@
     <section class="py-5 text-center container">
       <div class="row py-lg-5">
         <div class="col-lg-6 col-md-8 mx-auto">
-          <h1 class="fw-light">История действий модераторов</h1>
+          <h1 class="fw-light">Принятые/отклоненные магазины и продукты</h1>
           <h4 class="text-muted">Модератор, будь внимателен!</h4>
           <div class="container" style="margin-top: 20px">
           </div>
@@ -32,38 +32,48 @@
                     <th scope="col">Изменить</th>
                   </tr>
                 </thead>
-                {% for element in page_obj %}
+                {% for obj in page_obj %}
                   <tbody>
                     <tr>
                       <th scope="row">{{ page_obj.start_index|add:forloop.counter0 }}</th>
-                      <td>{{ element.id }}</td>
-                      <td>{{ element.get_type_display }}</td>
-                      {% if element.product %}
-                        <td>{{ element.product.id }}</td>
-                        <td>{{ element.product.name }}</td>
-                        <td><a class="btn btn-secondary my-2" href="{% url 'shop:product' element.product.id %}">Ссылка</a></td>
-                        <td>{{ element.product.get_status_display }}</td>
+                      <td>{{ obj.id }}</td>
+                      <td>{{ obj.get_type_display }}</td>
+                      {% if obj.product %}
+                        <td>{{ obj.product.id }}</td>
+                        <td>{{ obj.product.name }}</td>
+                        <td><a class="btn btn-secondary my-2" href="{% url 'shop:product' obj.product.id %}">Ссылка</a></td>
+                        <td>{{ obj.product.get_status_display }}</td>
                       {% else %}
-                        <td>{{ element.shop.id }}</td>
-                        <td>{{ element.shop.name }}</td>
-                        <td><a class="btn btn-secondary my-2" href="{% url 'shop:shop' element.shop.id %}">Ссылка</a></td>
-                        <td>{{ element.shop.get_status_display }}</td>
+                        <td>{{ obj.shop.id }}</td>
+                        <td>{{ obj.shop.name }}</td>
+                        <td><a class="btn btn-secondary my-2" href="{% url 'shop:shop' obj.shop.id %}">Ссылка</a></td>
+                        <td>{{ obj.shop.get_status_display }}</td>
                       {% endif %}
-                      <td id="description">{{ element.reason }}</td>
-                      <td>{{ element.moderator.username }}</td>
-                      <td>{{ element.update_date }}</td>
+                      <td id="description">{{ obj.reason }}</td>
+                      <td>{{ obj.moderator.username }}</td>
+                      <td>{{ obj.update_date }}</td>
                       <td>
-                        {% if element.product %}
-                          {% if element.product.status == 'Reject'%}
-                            <a href="{% url 'moderation:accept_product' element.product.id %}" class="btn btn-outline-success">Одобрить</a>
-                          {% elif element.product.status == 'Accept'%}
-                            <a href="{% url 'moderation:reject_product' element.product.id %}" class="btn btn-outline-danger">Отклонить</a>
+                        {% if obj.product %}
+                          {% if obj.product.status == 'Reject'%}
+                            <form method="POST" action="{% url 'moderation:accept_product' obj.product.id %}">
+                              {% csrf_token %}
+                              <button type="submit" class="btn btn-outline-success">
+                                Одобрить
+                              </button>
+                            </form>
+                          {% elif obj.product.status == 'Accept'%}
+                            <a href="{% url 'moderation:reject_product' obj.product.id %}" class="btn btn-outline-danger">Отклонить</a>
                           {% endif %}
                         {% else %}
-                          {% if element.shop.status == 'Reject'%}
-                            <a href="{% url 'moderation:accept_shop' element.shop.id %}" class="btn btn-outline-success">Одобрить</a>
-                          {% elif element.shop.status == 'Accept'%}
-                            <a href="{% url 'moderation:reject_shop' element.shop.id %}" class="btn btn-outline-danger">Отклонить</a>
+                          {% if obj.shop.status == 'Reject'%}
+                            <form method="POST" action="{% url 'moderation:accept_shop' obj.shop.id %}">
+                              {% csrf_token %}
+                              <button type="submit" class="btn btn-outline-success">
+                                Одобрить
+                              </button>
+                            </form>
+                          {% elif obj.shop.status == 'Accept'%}
+                            <a href="{% url 'moderation:reject_shop' obj.shop.id %}" class="btn btn-outline-danger">Отклонить</a>
                           {% endif %}
                         {% endif %}
                       </td>
