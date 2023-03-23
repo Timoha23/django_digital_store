@@ -106,12 +106,7 @@
                     </form>
                   </div>
                   <div class="col">
-                    <form method="POST" action="{% url 'moderation:reject_product' product.id %}">
-                      {% csrf_token %}
-                      <button type="submit" class="btn btn-outline-danger">
-                        Отклонить
-                      </button>
-                    </form>
+                    <a href="{% url 'moderation:reject_product' product.id %}" class="btn btn-outline-danger">Отклонить</a>
                   </div>
                 </div>
               {% else %}
