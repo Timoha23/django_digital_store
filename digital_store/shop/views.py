@@ -5,11 +5,10 @@ from django.db.models import Avg
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.core.paginator import Paginator
 from django.views.decorators.http import require_POST
 
+from core.pagination import get_context_paginator
 from cart.models import OrderHistory
-from users.models import Favorite
 from digital_store.settings import STAFF_ROLES
 from moderation.models import AcceptRejectList
 from reviews.models import Review
@@ -41,19 +40,6 @@ def owner_required(func):
                     return func(request, *args, **kwargs)
         return redirect('shop:index')
     return wrapper
-
-
-def get_context_paginator(queryset, request, is_products=False):
-    if is_products:
-        count_posts = 9
-    else:
-        count_posts = 10
-    paginator = Paginator(queryset, count_posts)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    return {
-        'page_obj': page_obj,
-    }
 
 
 ###############################################################
