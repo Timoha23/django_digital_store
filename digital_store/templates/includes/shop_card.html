@@ -41,7 +41,12 @@
         <a href="{% url 'shop:shop' shop.pk %}" class="btn btn-outline-secondary">Перейти в магазин</a>
         {% if request.user == shop.owner %}
           <a href="{% url 'shop:edit_shop' shop.pk %}" class="btn btn-outline-secondary">Редактировать магазин</a>
-          <a href="{% url 'shop:delete_shop' shop.pk %}" class="btn btn-outline-secondary">Удалить магазин</a>
+          <form method="POST" action="{% url 'shop:delete_shop' shop.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-secondary">
+              Удалить магазин
+            </button>
+          </form>
         {% endif %}
       {% endif %}
     </div>
