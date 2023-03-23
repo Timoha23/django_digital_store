@@ -41,7 +41,7 @@ class AcceptRejectList(models.Model):
     )
     update_date = models.DateTimeField(
         auto_now=True,
-        verbose_name='Дата последней првоерки',
+        verbose_name='Дата последней проверки',
     )
     created_date = models.DateTimeField(
         auto_now_add=True,
@@ -49,4 +49,12 @@ class AcceptRejectList(models.Model):
     )
 
     def __str__(self):
-        return self.type
+        if self.type == 'shop':
+            return (f'{self.get_type_display()}.'
+                    f' {self.shop.get_status_display()}.')
+        return (f'{self.get_type_display()}.'
+                f' {self.product.get_status_display()}.')
+
+    class Meta:
+        verbose_name = 'История модерации'
+        verbose_name_plural = 'История модерации'
