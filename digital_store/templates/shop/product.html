@@ -14,13 +14,12 @@
               <tr>
                   <th scope="row">{{ forloop.counter }}</th>
                   <td id="description">{{ item.item }}</td>
-                  <td><a
-                    class="btn"
-                    href="{% url 'shop:delete_item' item.id %}"
-                    role="button"
-                  >
-                    Удалить
-                  </a></td>
+                  <td>
+                    <form method="POST" action="{% url 'shop:delete_item' item.id %}">
+                      {% csrf_token %}
+                      <button type="submit" class="btn">Удалить</button>
+                    </form>
+                  </td>
               </tr>
             {% endfor %}
           </tbody>
