@@ -3,6 +3,7 @@ from django.views.generic import CreateView
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.core.cache import cache
 
 from shop.views import Product
 from cart.models import Order
@@ -116,5 +117,6 @@ def change_favorite(request):
             'is_favorite': is_favorite,
         }
 
+        cache.clear()
         return JsonResponse(context, safe=False)
     return JsonResponse({"success": False}, status=400)
