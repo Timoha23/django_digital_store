@@ -41,6 +41,10 @@ class User(AbstractUser):
     def __str__(self):
         return self.username
 
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
 
 class Favorite(models.Model):
     """
@@ -72,3 +76,5 @@ class Favorite(models.Model):
     class Meta:
         constraints = [models.UniqueConstraint(fields=('user', 'product'),
                        name='Уникальные значения')]
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранное'
