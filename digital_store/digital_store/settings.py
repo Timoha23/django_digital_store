@@ -169,4 +169,4 @@ CACHES = {
     }
 }
 
-CACHE_TIME = 10
+CACHE_TIME = 15
