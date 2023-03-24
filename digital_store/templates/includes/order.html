@@ -41,6 +41,21 @@
         </p>
         <!-- Price -->
       </div>
+      <div class="text-center">
+        <button class="btn btn-outline-secondary show-items" id="{{ obj.id }}">Товар ↓</button>
+        <div class="items-{{ obj.id }}" hidden="false">
+          <table id="table1" class="table table-bordered" style="margin-top:10px;">
+            <tbody>
+              {% for item in obj.items.all %}
+              <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td id="description">{{ item }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
     <!-- Single item -->
     {% if forloop.last %}
