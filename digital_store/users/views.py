@@ -34,7 +34,8 @@ def order_list(request):
     """
 
     orders = (Order.objects.filter(order_history__user=request.user)
-              .distinct().prefetch_related('order_history__product__shop')
+              .distinct().prefetch_related('order_history__product__shop',
+                                           'order_history__items')
               .order_by('-created_date')
               )
 
