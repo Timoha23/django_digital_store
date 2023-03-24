@@ -5,6 +5,7 @@ $(document).ready(function() {
     addRemoveFavorite()
     addToCart()
     delFromCart()
+    showBoughtItems()
 }); 
 
 function addCountItemsCart() {
@@ -192,6 +193,19 @@ function delFromCart() {
                     console.log('error')
                 }
             })
+        });
+    });
+}
+
+function showBoughtItems() {
+    $('.show-items').each((index, el) => {
+        $(el).on('click', (e) => {
+            const obj_id = $(el).attr('id')
+            if ($(`.items-${obj_id}`).attr('hidden')) {
+                $(`.items-${obj_id}`).removeAttr('hidden')
+            } else {
+                $(`.items-${obj_id}`).attr('hidden', true)
+            }
         });
     });
 }
