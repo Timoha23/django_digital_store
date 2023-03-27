@@ -1,27 +1,75 @@
 from functools import wraps
 
-from django.http import Http404
-from django.db.models import Avg
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+from django.db.models import Avg, BooleanField, Case, When
+from django.http import Http404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.cache import cache_page
+from django.views.decorators.http import require_POST
 
-from core.pagination import get_context_paginator
 from cart.models import OrderHistory
-from digital_store.settings import STAFF_ROLES, CACHE_TIME
+from core.pagination import get_context_paginator
+from digital_store.settings import CACHE_TIME, STAFF_ROLES
 from moderation.models import AcceptRejectList
-from reviews.models import Review
 from reviews.forms import ReviewForm
-from .models import Shop, Product, Item, Category
-from .forms import ShopForm, ProductForm, ItemForm
+from reviews.models import Review
+
+from .forms import ItemForm, ProductForm, ShopForm
+from .models import Category, Item, Product, Shop
+
+
+def get_products(request, shop=None, category_slug=None, query=None):
+    """
+    Получаем список продуктов
+    """
+
+    products = (Product.objects
+                .filter()
+                .select_related('shop__owner')
+                .prefetch_related('category', 'review')
+                .order_by('-created_date')
+                .annotate(avg_rating=Avg('review__rating'),
+                          is_favorite=Case(
+                            When(favorite__user=request.user,
+                                 then=True),
+                            default=False,
+                            output_field=BooleanField()),
+                          in_cart=Case(
+                              When(cart__user=request.user,
+                                   then=True),
+                              default=False,
+                              output_field=BooleanField(),
+                      ))
+                )
+    if shop:
+        if request.user != shop.owner:
+            products = products.filter(
+                status='Accept',
+                visibile=True,
+                is_available=True
+            )
+        products = products.filter(shop=shop)
+    else:
+        products = products.filter(
+                status='Accept',
+                visibile=True,
+                is_available=True
+            )
+
+    if category_slug:
+        products = products.filter(category__slug=category_slug)
+    if query:
+        products = products.filter(name__icontains=query)
+
+    return products
 
 
 def owner_required(func):
     """
     Декоратор. Проверка является ли юзер владельцем магазина
     """
+
     @wraps(func)
     def wrapper(request, *args, **kwargs):
         if 'shop_id' in kwargs:
@@ -31,7 +79,8 @@ def owner_required(func):
                     return func(request, *args, **kwargs)
         elif 'product_id' in kwargs:
             if request.user.is_authenticated:
-                product = get_object_or_404(Product, id=kwargs.get('product_id'))
+                product = get_object_or_404(Product,
+                                            id=kwargs.get('product_id'))
                 if request.user == product.shop.owner:
                     return func(request, *args, **kwargs)
         elif 'item_id' in kwargs:
@@ -52,28 +101,10 @@ def index(request):
     Главная страница проекта
     """
 
-    products = (Product.objects.filter(status='Accept', visibile=True,
-                                       is_available=True)
-                .order_by('-created_date')[:9]
-                .select_related('shop__owner')
-                .prefetch_related('category')
-                .prefetch_related('review')
-                .annotate(avg_rating=Avg('review__rating'))
-                )
-
-    if request.user.is_authenticated:
-        favorites = request.user.favorite.all().values_list('product__id',
-                                                            flat=True)
-        cart = request.user.cart.all().values_list('product__id',
-                                                   flat=True)
-    else:
-        favorites = []
-        cart = []
+    products = get_products(request)
 
     context = {
         'products': products,
-        'favorites': favorites,
-        'cart': cart,
     }
 
     return render(
@@ -95,44 +126,15 @@ def shop(request, shop_id):
     # проверка статуса магазина
     if shop.status != 'Accept':
         if request.user.is_authenticated is True:
-            if (request.user != shop.owner or
-                request.user.role not in STAFF_ROLES):
+            if (request.user != shop.owner or request.user.role
+                    not in STAFF_ROLES):
                 raise Http404
         else:
             raise Http404
 
-    if request.user == shop.owner:
-        products = (Product.objects.filter(shop=shop)
-                    .select_related('shop__owner')
-                    .prefetch_related('category')
-                    .prefetch_related('review')
-                    .order_by('-created_date')
-                    .annotate(avg_rating=Avg('review__rating'))
-                    )
-
-    else:
-        products = (Product.objects.filter(shop=shop,
-                                           status='Accept', visibile=True)
-                    .select_related('shop__owner')
-                    .prefetch_related('category')
-                    .prefetch_related('review')
-                    .annotate(avg_rating=Avg('review__rating'))
-                    .order_by('-created_date')
-                    .order_by('-is_available')
-                    )
-
-    if request.user.is_authenticated:
-        favorites = request.user.favorite.all().values_list('product__id',
-                                                            flat=True)
-        cart = request.user.cart.all().values_list('product__id',
-                                                   flat=True)
-    else:
-        favorites = []
-        cart = []
+    products = get_products(request, shop)
 
     context = {
-        'favorites': favorites,
-        'cart': cart,
         'shop': shop,
         'products': products,
         'products_exists': products.exists(),
@@ -172,8 +174,20 @@ def product(request, product_id):
     """
 
     product = get_object_or_404(
-        Product.objects.select_related('shop__owner').annotate(
-            avg_rating=Avg('review__rating')),
+        Product.objects
+        .select_related('shop__owner')
+        .annotate(
+            avg_rating=Avg('review__rating'),
+            is_favorite=Case(
+                When(favorite__user=request.user,
+                     then=True),
+                default=False,
+                output_field=BooleanField()),
+            in_cart=Case(
+                When(cart__user=request.user,
+                     then=True),
+                default=False,
+                output_field=BooleanField())),
         pk=product_id)
 
     shop = Shop.objects.get(products=product_id)
@@ -186,7 +200,7 @@ def product(request, product_id):
     if product.status != 'Accept':
         if request.user.is_authenticated is True:
             if (request.user != shop.owner or
-                request.user.role not in STAFF_ROLES):
+                    request.user.role not in STAFF_ROLES):
                 raise Http404
         else:
             raise Http404
@@ -197,17 +211,8 @@ def product(request, product_id):
             user=request.user,
             review=False
         )
-        favorites = request.user.favorite.all().values_list('product__id',
-                                                            flat=True)
-        cart = request.user.cart.all().values_list('product__id',
-                                                   flat=True)
-    else:
-        favorites = []
-        cart = []
 
     context = {
-        'favorites': favorites,
-        'cart': cart,
         'shop': shop,
         'product': product,
         'items': items,
@@ -232,30 +237,9 @@ def product_list(request):
     Страница со всеми продуктами
     """
 
-    products = (Product.objects.filter(status='Accept')
-                .select_related('shop__owner')
-                .prefetch_related('category')
-                .prefetch_related('review')
-                .prefetch_related('cart')
-                .annotate(avg_rating=Avg('review__rating'))
-                .order_by('-created_date')
-                .order_by('-is_available')
-                )
+    products = get_products(request)
 
-    if request.user.is_authenticated:
-        favorites = request.user.favorite.all().values_list('product__id',
-                                                            flat=True)
-        cart = request.user.cart.all().values_list('product__id',
-                                                   flat=True)
-    else:
-        favorites = []
-        cart = []
-
-    context = {
-        'favorites': favorites,
-        'cart': cart,
-    }
-
+    context = {}
     context.update(get_context_paginator(products, request, is_products=True))
 
     return render(
@@ -294,6 +278,7 @@ def edit_shop(request, shop_id):
     """
     Редактирование магазина
     """
+
     shop = get_object_or_404(Shop, pk=shop_id)
     form = ShopForm(request.POST or None,
                     files=request.FILES or None,
@@ -302,7 +287,7 @@ def edit_shop(request, shop_id):
     if form.is_valid():
         form.save()
         shop.status = 'In_Consideration'
-        shop.save()
+        shop.save(delete=True)
         AcceptRejectList.objects.filter(shop=shop, product=None).delete()
         return redirect('shop:user_shops')
     context = {
@@ -371,7 +356,8 @@ def create_product(request, shop_id):
 
     if shop.status != 'Accept':
         messages.error(request, f'Вы не можете добавить товар. '
-                                f'Ваш магазин имеет статус: {shop.get_status_display()}.')
+                                f'Ваш магазин имеет статус: '
+                                f'{shop.get_status_display()}.')
         return redirect('shop:shop', shop_id)
 
     if form.is_valid():
@@ -475,7 +461,7 @@ def delete_item(request, item_id):
     """
     Удаление товара из продукта
     """
-    print(request.method)
+
     item = get_object_or_404(Item, id=item_id)
     product = item.product
     product.count -= 1
@@ -491,15 +477,7 @@ def search(request):
 
     query = request.GET.get('query')
 
-    products = (Product.objects.filter(status='Accept', name__icontains=query)
-                .select_related('shop__owner')
-                .prefetch_related('category')
-                .prefetch_related('review')
-                .prefetch_related('cart')
-                .annotate(avg_rating=Avg('review__rating'))
-                .order_by('-created_date')
-                .order_by('-is_available')
-                )
+    products = get_products(request, query=query)
 
     context = {
         'query': query,
@@ -520,18 +498,8 @@ def category(request, slug):
         messages.error(request, f'Категории {slug} не существует')
         return redirect('shop:index')
 
-    products = (Product.objects.filter(status='Accept', category__slug=slug)
-                .select_related('shop__owner')
-                .prefetch_related('category')
-                .prefetch_related('review')
-                .prefetch_related('cart')
-                .annotate(avg_rating=Avg('review__rating'))
-                .order_by('-created_date')
-                .order_by('-is_available')
-                )
+    products = get_products(request, category_slug=slug)
 
-    for product in products:
-        print(product.image)
     context = {
         'slug': slug,
     }
