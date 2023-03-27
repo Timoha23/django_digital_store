@@ -57,9 +57,10 @@ class Shop(models.Model):
     def __str__(self):
         return self.name
 
-    def save(self, *args, **kwargs):
-        Cart.objects.filter(product__shop=self).delete()
-        Favorite.objects.filter(product__shop=self).delete()
+    def save(self, delete=False, *args, **kwargs):
+        if delete:
+            Cart.objects.filter(product__shop=self).delete()
+            Favorite.objects.filter(product__shop=self).delete()
         super(Shop, self).save(*args, **kwargs)
 
     class Meta:
@@ -152,13 +153,14 @@ class Product(models.Model):
         verbose_name='Дата создания',
     )
 
-    def save(self, *args, **kwargs):
+    def save(self, delete=False, *args, **kwargs):
         if self.count > 0:
             self.is_available = True
         else:
             self.is_available = False
-        Cart.objects.filter(product=self).delete()
-        Favorite.objects.filter(product=self).delete()
+        if delete:
+            Cart.objects.filter(product=self).delete()
+            Favorite.objects.filter(product=self).delete()
         super(Product, self).save(*args, **kwargs)
 
     def __str__(self):
