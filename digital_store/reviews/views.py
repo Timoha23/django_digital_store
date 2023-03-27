@@ -1,13 +1,14 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 
 from cart.models import OrderHistory
 from core.pagination import get_context_paginator
 from shop.models import Product, Shop
-from .models import Review
+
 from .forms import ReviewForm
+from .models import Review
 
 
 @login_required
@@ -43,15 +44,7 @@ def review_add(request, product_id):
 
 def review_remove(request, review_id, product_id):
     """
-    Удаление отзыва из продукта
-    """
-
-    ...
-
-
-def reviews_product_list(request, product_id):
-    """
-    Список отзывов для продукта
+    Удаление отзыва из продукта (нужно ли?)
     """
 
     ...
@@ -64,10 +57,12 @@ def reviews_shop_list(request, shop_id):
 
     shop = get_object_or_404(
         (Shop.objects.all().select_related('owner')
-         .annotate(avg_rating=Avg('shop_in_product__review__rating'))),
+         .annotate(avg_rating=Avg('products__review__rating'))),
         pk=shop_id)
-    shop_reviews = (Review.objects.filter(product__shop=shop)
-                    .select_related('user', 'product'))
+    shop_reviews = (
+        Review.objects.filter(product__shop=shop)
+                      .select_related('user', 'product')
+        )
 
     context = {
         'shop': shop,
