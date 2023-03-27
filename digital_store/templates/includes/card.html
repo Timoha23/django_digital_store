@@ -54,7 +54,7 @@
                     {% if product.is_available %}
                       <form action="{% url 'cart:add_to_cart' %}" method="POST" class="add-to-cart-form" id="{{ product.id }}">
                         {% csrf_token %}
-                        {% if product.id in cart %}
+                        {% if product.in_cart %}
                           <button style="position: relative" type="submit" class="btn btn-success btn-sm me-1 mb-2" data-mdb-toggle="tooltip" title="В корзине">
                             <i class="fa-solid fa-basket-shopping"></i>
                           </button>
@@ -79,7 +79,7 @@
                       <form action="{% url 'users:change_favorite' %}" method="POST" class="favorite-form" id="{{ product.id }}">
                         {% csrf_token %}
                         <div class="favorite-btn-wrap">
-                          {% if product.id in favorites %}
+                          {% if product.is_favorite %}
                             <button style="position: relative" type="submit" class="btn btn-danger btn-sm me-1 mb-2" data-mdb-toggle="tooltip" title="В избранном">
                               <i class="fa-solid fa-heart"></i>
                             </button>
