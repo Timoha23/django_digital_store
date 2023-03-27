@@ -1,5 +1,6 @@
-from shop.models import Shop
 from django.utils import timezone
+
+from shop.models import Shop
 
 
 def get_user_have_shop(request):
