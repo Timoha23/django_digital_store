@@ -1,6 +1,7 @@
 from django.db import models
 
-from users.models import User
+from cart.models import Cart
+from users.models import User, Favorite
 
 PRODUCT_AND_SHOP_STATUS = (
         ('Accept', 'Одобрено'),
@@ -55,7 +56,12 @@ class Shop(models.Model):
 
     def __str__(self):
         return self.name
-    
+
+    def save(self, *args, **kwargs):
+        Cart.objects.filter(product__shop=self).delete()
+        Favorite.objects.filter(product__shop=self).delete()
+        super(Shop, self).save(*args, **kwargs)
+
     class Meta:
         verbose_name = 'Магазин'
         verbose_name_plural = 'Магазины'
@@ -151,6 +157,8 @@ class Product(models.Model):
             self.is_available = True
         else:
             self.is_available = False
+        Cart.objects.filter(product=self).delete()
+        Favorite.objects.filter(product=self).delete()
         super(Product, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -194,10 +202,3 @@ class Item(models.Model):
     class Meta:
         verbose_name = 'Товар'
         verbose_name_plural = 'Товары'
-
-
-class BrowsingHistory(models.Model):
-    """
-    Модель истории просмотра товара юзером
-    """
-    ...
