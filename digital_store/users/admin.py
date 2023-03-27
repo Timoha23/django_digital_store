@@ -16,3 +16,4 @@ class FavoriteAdmin(admin.ModelAdmin):
 
 admin.site.register(User, UserAdmin)
 admin.site.register(Favorite, FavoriteAdmin)
+
