@@ -1,6 +1,5 @@
 from django.db import models
 
-from shop.models import Item, Product
 from users.models import User
 
 
@@ -17,7 +16,7 @@ class Cart(models.Model):
     )
 
     product = models.ForeignKey(
-        Product,
+        'shop.Product',
         on_delete=models.CASCADE,
         verbose_name='Продукт',
         related_name='cart',
@@ -80,7 +79,7 @@ class OrderHistory(models.Model):
     )
 
     product = models.ForeignKey(
-        Product,
+        'shop.Product',
         null=True,
         on_delete=models.CASCADE,
         verbose_name='Продукт',
@@ -88,7 +87,7 @@ class OrderHistory(models.Model):
     )
 
     items = models.ManyToManyField(
-        Item,
+        'shop.Item',
         verbose_name='Товары',
         related_name='order_history',
     )
