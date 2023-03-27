@@ -1,5 +1,6 @@
 from django.utils import timezone
 
+from digital_store.settings import STAFF_ROLES
 from shop.models import Shop
 
 
@@ -12,8 +13,6 @@ def get_user_have_shop(request):
 
 
 def get_user_is_staff(request):
-    STAFF_ROLES = ('moderator', 'admin',)
-
     if request.user.is_authenticated and request.user.role in STAFF_ROLES:
         return {'is_staff': True}
     return {'is_staff': False}
