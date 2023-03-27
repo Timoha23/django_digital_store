@@ -1,14 +1,16 @@
+from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
+from django.db.models import Avg, BooleanField, Case, When
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-from django.core.cache import cache
 
-from shop.views import Product
 from cart.models import Order
-from core.pagination import get_context_paginator
 from core.actions import is_ajax
+from core.pagination import get_context_paginator
+from shop.views import Product
+
 from .forms import CreationForm
 from .models import Favorite
 
@@ -33,9 +35,11 @@ def order_list(request):
     Отображение списка покупок для юзера
     """
 
-    orders = (Order.objects.filter(order_history__user=request.user)
-              .distinct().prefetch_related('order_history__product__shop',
-                                           'order_history__items')
+    orders = (Order.objects
+              .filter(order_history__user=request.user)
+              .distinct()
+              .prefetch_related('order_history__product__shop',
+                                'order_history__items')
               .order_by('-created_date')
               )
 
@@ -52,49 +56,29 @@ def get_favorite_list(request):
     Получить список избранных продуктов
     """
 
-    favorite_products = (Product.objects.filter(favorite__user=request.user)
+    favorite_products = (Product.objects
+                         .filter(favorite__user=request.user)
                          .prefetch_related('category')
                          .select_related('shop__owner')
-                         )
+                         .annotate(avg_rating=Avg('review__rating'),
+                                   is_favorite=Case(
+                                        When(favorite__user=request.user,
+                                             then=True),
+                                        default=False,
+                                        output_field=BooleanField()),
+                                   in_cart=Case(
+                                        When(cart__user=request.user,
+                                             then=True),
+                                        default=False,
+                                        output_field=BooleanField(),
+                                        )))
 
-    if request.user.is_authenticated:
-        favorites = request.user.favorite.all().values_list('product__id',
-                                                            flat=True)
-        cart = request.user.cart.all().values_list('product__id',
-                                                   flat=True)
-    else:
-        favorites = []
-        cart = []
-
-    context = {
-        'favorites': favorites,
-        'cart': cart,
-    }
+    context = {}
 
     context.update(get_context_paginator(favorite_products, request))
 
     return render(request, context=context,
                   template_name='users/favorites.html')
-
-
-# @login_required
-# def add_to_favorite(request, product_id):
-    # """
-    # Добавление продукта в избранное
-    # """
-
-    # product = get_object_or_404(Product, pk=product_id)
-
-    # if request.user == product.shop.owner:
-    #     messages.error(request, 'Владелец не может добавить свой товар в избранное.')
-    #     return redirect('users:favorites')
-    # if Favorite.objects.filter(user=request.user, product=product).exists():
-    #     messages.error(request, 'Данный товар уже находится у вас в избранном')
-    #     return redirect('users:favorites')
-    # else:
-    #     Favorite.objects.create(user=request.user, product=product)
-    #     messages.success(request, f'Товар {product.name} успешно добавлен в избранное.')
-    #     return redirect('users:favorites')
 
 
 @login_required
