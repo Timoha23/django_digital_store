@@ -1,15 +1,16 @@
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
-from django.db.models import Avg, BooleanField, Case, When
+from django.db.models import Avg, BooleanField, Case, Count, When
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 
-from cart.models import Order
+from cart.models import Order, OrderHistory
 from core.actions import is_ajax
 from core.pagination import get_context_paginator
-from shop.views import Product
+from reviews.models import Review
+from shop.models import Product, Shop
 
 from .forms import CreationForm
 from .models import Favorite
@@ -26,7 +27,26 @@ def user_profile(request, username):
     Профиль пользователя
     """
 
-    return render(request, template_name='users/profile.html')
+    context = {}
+    if Shop.objects.filter(owner=request.user).exists():
+        count_shops = Shop.objects.filter(owner=request.user).count()
+        count_products = Product.objects.filter(
+            shop__owner=request.user).count()
+        rating = (Review.objects
+                  .filter(product__shop__owner=request.user)
+                  .aggregate(Avg('rating'))
+                  )
+        count_sales = (OrderHistory.objects
+                       .filter(product__shop__owner=request.user)
+                       .aggregate(Count('count_items'))
+                       )
+        context = {
+            'count_shops': count_shops,
+            'count_products': count_products,
+            'rating': int(rating.get('rating__avg')),
+            'count_sales': count_sales.get('count_items__count'),
+        }
+    return render(request, context=context, template_name='users/profile.html')
 
 
 @login_required
