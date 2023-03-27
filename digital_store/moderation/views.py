@@ -1,14 +1,15 @@
 from functools import wraps
 
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from core.pagination import get_context_paginator
 from digital_store.settings import STAFF_ROLES
-from shop.models import Shop, Product
-from .models import AcceptRejectList
+from shop.models import Product, Shop
+
 from .forms import RejectForm
+from .models import AcceptRejectList
 
 
 def get_last_page(request):
@@ -107,10 +108,11 @@ def reject_shop(request, shop_id):
                 product=None,
                 reason=form.cleaned_data.get('reason')
             )
-        AcceptRejectList.objects.filter(shop=shop).exclude(product=None).update(
+        AcceptRejectList.objects.filter(shop=shop).exclude(
+            product=None).update(
                 reason='Статус магазина: Отклонено'
             )
-        for product in shop.shop_in_product.all():
+        for product in shop.products.all():
             product.status = 'Reject'
             product.save()
 
@@ -231,10 +233,11 @@ def moderation_history(request):
     История действий модератора
     """
 
-    history = (AcceptRejectList.objects.select_related('shop')
-               .select_related('product').select_related('moderator')
-               .all().order_by('update_date')
-               )
+    history = (
+        AcceptRejectList.objects
+        .select_related('shop', 'product', 'moderator')
+        .all().order_by('update_date')
+    )
 
     context = {
         'history': history,
