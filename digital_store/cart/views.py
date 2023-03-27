@@ -1,12 +1,13 @@
-from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
 from django.core.cache import cache
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 
+from core.actions import get_or_none, is_ajax
 from digital_store.settings import MAX_CART_SIZE
 from shop.models import Product
-from core.actions import get_or_none, is_ajax
+
 from .models import Cart, Order, OrderHistory
 
 
@@ -71,12 +72,11 @@ def add_to_cart(request):
             return JsonResponse({"success": False}, status=400)
 
         if product_in_user_cart is None:
-            create_product = Cart.objects.create(
+            Cart.objects.create(
                 user=request.user,
                 product=product,
                 count_items=1,
             )
-            create_product.save()
 
         else:
             product_in_user_cart.count_items += 1
@@ -134,7 +134,8 @@ def make_order(request):
         count_items = obj.count_items
         items = product.item.filter(status='sale')[:count_items]
         if len(items) <= 0:
-            messages.error(request, f'Нельзя оформить заказ на 0 товаров. Ошибка: {product.name}.')
+            messages.error(request, f'Нельзя оформить заказ на 0 товаров. '
+                                    f'Ошибка: {product.name}.')
             return redirect('cart:cart')
 
     order = Order.objects.create()
@@ -147,7 +148,9 @@ def make_order(request):
 
         # проверка на то есть ли указаное в заказе количество товара
         if len(items) < count_items:
-            messages.error(request, f'К сожалению {product.name} имеет в наличии только {len(items)} товаров. У вас указано {count_items}')
+            messages.error(request, f'К сожалению {product.name} имеет '
+                                    f'в наличии только {len(items)} товаров. '
+                                    f'У вас указано {count_items}')
             return redirect('cart:cart')
 
         order_history = OrderHistory.objects.create(
@@ -181,7 +184,6 @@ def add_count_items(request):
     Изменение количества товара в корзине(+)
     """
 
-    # if is_ajax(request=request):
     if is_ajax(request=request) and request.method == 'POST':
         data = request.POST
         maximum_count = False
@@ -236,18 +238,3 @@ def remove_count_items(request):
 
         return JsonResponse(context, status=200)
     return JsonResponse({"success": False}, status=400)
-# @login_required
-# def order_list(request):
-#     """
-#     Отображение списка покупок для юзера
-#     """
-
-#     orders = (Order.objects.filter(order_history__user=request.user)
-#               .distinct().prefetch_related('order_history__product')
-#               .prefetch_related('order_history__product__shop')
-#               )
-
-#     context = {
-#         'orders': orders,
-#     }
-#     return render(request, context=context, template_name='cart/orders.html')
