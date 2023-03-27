@@ -1,7 +1,5 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
-
-# from shop.models import Product
+from django.db import models
 
 
 class User(AbstractUser):
