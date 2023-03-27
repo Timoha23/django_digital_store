@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import User, Favorite
+from .models import Favorite, User
 
 
 class UserAdmin(admin.ModelAdmin):
