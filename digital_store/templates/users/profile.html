@@ -25,32 +25,31 @@
             </div>
           </div>
         </div>
+        {% if user_have_shop %}
         <div class="card mb-4 mb-lg-0">
           <div class="card-body p-0">
+            <h4 class="text-center" style="margin-top:20px">Статус: Продавец</h4>
             <ul class="list-group list-group-flush rounded-3">
               <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                <i class="fas fa-globe fa-lg text-warning"></i>
-                <p class="mb-0">https://mdbootstrap.com</p>
+                <i class="fa-solid fa-shop" style="color: #403f3f;"> Магазинов:</i>
+                <p class="mb-0">{{ count_shops }}</p>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                <i class="fab fa-github fa-lg" style="color: #333333;"></i>
-                <p class="mb-0">mdbootstrap</p>
+                <i class="fa-solid fa-box" style="color: #403f3f;"> Товаров:</i>
+                <p class="mb-0">{{ count_products }}</p>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                <i class="fab fa-twitter fa-lg" style="color: #55acee;"></i>
-                <p class="mb-0">@mdbootstrap</p>
+                <i class="fa-solid fa-cart-arrow-down" style="color: #403f3f;"> Количество продаж:</i>
+                <p class="mb-0">{{ count_sales }}</p>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                <i class="fab fa-instagram fa-lg" style="color: #ac2bac;"></i>
-                <p class="mb-0">mdbootstrap</p>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                <i class="fab fa-facebook-f fa-lg" style="color: #3b5998;"></i>
-                <p class="mb-0">mdbootstrap</p>
+                <i class="fa-solid fa-star-half-stroke" style="color: #403f3f;"> Рейтинг продавца: </i>
+                <p class="mb-0">{{ rating }}/5⭐</p>
               </li>
             </ul>
           </div>
         </div>
+        {% endif %}
       </div>
       <div class="col-lg-8">
         <div class="card mb-4">
