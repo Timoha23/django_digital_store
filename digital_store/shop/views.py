@@ -23,14 +23,15 @@ def get_products(request, shop=None, category_slug=None, query=None):
     """
     Получаем список продуктов
     """
-
     products = (Product.objects
                 .filter()
                 .select_related('shop__owner')
                 .prefetch_related('category', 'review')
                 .order_by('-created_date')
-                .annotate(avg_rating=Avg('review__rating'),
-                          is_favorite=Case(
+                .annotate(avg_rating=Avg('review__rating'))
+                )
+    if request.user.is_authenticated:
+        products.annotate(is_favorite=Case(
                             When(favorite__user=request.user,
                                  then=True),
                             default=False,
@@ -41,9 +42,8 @@ def get_products(request, shop=None, category_slug=None, query=None):
                               default=False,
                               output_field=BooleanField(),
                       ))
-                )
     if shop:
-        if request.user != shop.owner:
+        if request.user.is_authenticated and request.user != shop.owner:
             products = products.filter(
                 status='Accept',
                 visibile=True,
