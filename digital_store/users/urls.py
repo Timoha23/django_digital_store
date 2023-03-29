@@ -18,4 +18,5 @@ urlpatterns = [
     path('shops/<slug:username>/', views.get_user_shop_list, name='shops'),
     path('products/<slug:username>', views.get_user_product_list,
          name='products'),
+    path('edit_profile/', views.edit_profile, name='edit_profile'),
 ]
