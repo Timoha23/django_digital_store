@@ -13,9 +13,39 @@ from reviews.models import Review
 from shop.models import Product, Shop
 
 from .forms import CreationForm
-from .models import Favorite
+from .models import Favorite, User
 
 
+def get_percent_rating(user) -> dict:
+    """
+    Получение процента по шкале рейтинга
+    """
+
+    stars_dict = {
+        1: 0,
+        2: 0,
+        3: 0,
+        4: 0,
+        5: 0,
+    }
+
+    stars_percent = stars_dict.copy()
+
+    reviews = Review.objects.filter(product__shop__owner=user).values('rating')
+
+    # заполняем словарь для подсчета каждой оценки
+    for star in reviews:
+        stars_dict[star['rating']] += 1
+
+    # заполняем словарь для подсчета процента по оценкам
+    for star in stars_dict:
+        stars_percent[star] = (
+            stars_dict[star], round((stars_dict[star] / reviews.count()) * 100)
+        )
+    return stars_percent
+
+
+############################
 class SignUp(CreateView):
     form_class = CreationForm
     success_url = reverse_lazy('shop:index')
@@ -28,23 +58,32 @@ def user_profile(request, username):
     """
 
     context = {}
-    if Shop.objects.filter(owner=request.user).exists():
-        count_shops = Shop.objects.filter(owner=request.user).count()
+    user = get_object_or_404(User, username=username)
+    if Shop.objects.filter(owner=user).exists():
+        count_shops = Shop.objects.filter(owner=user).count()
         count_products = Product.objects.filter(
-            shop__owner=request.user).count()
+            shop__owner=user).count()
+
         rating = (Review.objects
-                  .filter(product__shop__owner=request.user)
+                  .filter(product__shop__owner=user)
                   .aggregate(Avg('rating'))
                   )
+
+        rating = (int(rating.get('rating__avg'))
+                  if (rating.get('rating__avg')) is not None else None)
+
         count_sales = (OrderHistory.objects
-                       .filter(product__shop__owner=request.user)
+                       .filter(product__shop__owner=user)
                        .aggregate(Count('count_items'))
                        )
+
         context = {
+            'user': user,
             'count_shops': count_shops,
             'count_products': count_products,
-            'rating': int(rating.get('rating__avg')),
+            'rating': rating,
             'count_sales': count_sales.get('count_items__count'),
+            'percent_rating': get_percent_rating(user),
         }
     return render(request, context=context, template_name='users/profile.html')
 
