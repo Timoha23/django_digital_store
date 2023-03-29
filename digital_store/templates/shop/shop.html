@@ -7,7 +7,7 @@
         <div class="col-lg-6 col-md-8 mx-auto">
           <h1 class="fw-light">Страница магазина <b>{{ shop.name }}</b></h1>
           <p>
-            <a href="#" class="btn btn-primary my-2">Профиль продавца</a>
+            <a href="{% url 'users:user_profile' shop.owner.username %}" class="btn btn-primary my-2">Профиль продавца</a>
             <a href="{% url 'review:reviews_shop_list' shop.id %}" class="btn btn-secondary my-2">Посмотреть отзывы</a>
             {% if shop.owner == request.user %}
               <a href="{% url 'shop:create_product' shop.id %}" class="btn btn-secondary my-2">Добавить продукт</a>
