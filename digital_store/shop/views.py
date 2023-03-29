@@ -443,7 +443,7 @@ def create_item(request, product_id):
         product.count += 1
         product.save()
         item.save()
-        return redirect('shop:product', product.id)
+        return redirect('shop:shop', product.shop.id)
 
     context = {
         'form': form,
