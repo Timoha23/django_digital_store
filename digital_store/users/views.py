@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.db.models import Avg, BooleanField, Case, Count, When
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 
@@ -12,7 +12,7 @@ from core.pagination import get_context_paginator
 from reviews.models import Review
 from shop.models import Product, Shop
 
-from .forms import CreationForm
+from .forms import CreationForm, ChangeProfileForm
 from .models import Favorite, User
 
 
@@ -66,8 +66,10 @@ def user_profile(request, username):
     Профиль пользователя
     """
 
-    context = {}
     user = get_object_or_404(User, username=username)
+    context = {
+        'user': user,
+        }
     if Shop.objects.filter(owner=user).exists():
         count_shops = Shop.objects.filter(owner=user).count()
         count_products = Product.objects.filter(
@@ -87,7 +89,6 @@ def user_profile(request, username):
                        )
 
         context = {
-            'user': user,
             'count_shops': count_shops,
             'count_products': count_products,
             'rating': rating,
@@ -206,3 +207,18 @@ def get_user_product_list(request, username):
     context.update(get_context_paginator(products, request, is_products=True))
     return render(request, context=context,
                   template_name='shop/product_list.html')
+
+
+def edit_profile(request):
+    user = request.user
+    form = ChangeProfileForm(request.POST or None,
+                             files=request.FILES or None,
+                             instance=user)
+    if form.is_valid():
+        form.save()
+        return redirect('users:user_profile', user.username)
+
+    context = {
+        'form': form,
+    }
+    return render(request, context=context, template_name='users/edit_profile.html')
