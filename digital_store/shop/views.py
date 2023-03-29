@@ -19,10 +19,13 @@ from .forms import ItemForm, ProductForm, ShopForm
 from .models import Category, Item, Product, Shop
 
 
-def get_products(request, shop=None, category_slug=None, query=None):
+def get_products(request, shop=None, category_slug=None, query=None,
+                 all=False):
     """
     Получаем список продуктов
+    all - ключ на получение всех продуктов юзера
     """
+
     products = (Product.objects
                 .filter()
                 .select_related('shop__owner')
@@ -43,14 +46,14 @@ def get_products(request, shop=None, category_slug=None, query=None):
                               output_field=BooleanField(),
                       ))
     if shop:
-        if request.user.is_authenticated and request.user != shop.owner:
+        if not request.user.is_authenticated or request.user != shop.owner:
             products = products.filter(
                 status='Accept',
                 visibile=True,
                 is_available=True
             )
         products = products.filter(shop=shop)
-    else:
+    elif all is False:
         products = products.filter(
                 status='Accept',
                 visibile=True,
