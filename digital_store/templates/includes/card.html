@@ -21,8 +21,10 @@
             <div class="card-body">
               <a href="{% url 'shop:product' product.id %}" class="stretched-link"></a>
               <h5 class="card-title">{{ product.name }}</h5>
+              <hr class="hr-dashed-gradient"></hr>
               <div class="col" style="z-index:2; position: relative;">
                 <h6 class="card-title">Магазин: <a href="{% url 'shop:shop' product.shop.id %}" class="custom-link">{{ product.shop.name }}</a></h6>
+                <h6 class="card-title">Продавец: <a href="{% url 'users:user_profile' product.shop.owner.username %}" class="custom-link">{{ product.shop.owner.username }}</a></h6>
               </div>
               {% if product.avg_rating %}
                 <p>Рейтинг товара: {{ product.avg_rating|floatformat:"0" }}/5⭐</p>
@@ -41,7 +43,7 @@
               </div>
               <div class="row">
                 <div class="col">
-                  <p class="card-text">{{ product.description }}</p>
+                  <p class="card-text">Описание: {{ product.description }}</p>
                 </div>
                 <div class="col text-end">
                   <small class="text-muted">{{ product.created_date }}</small>
