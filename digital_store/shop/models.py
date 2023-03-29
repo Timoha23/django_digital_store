@@ -1,7 +1,7 @@
 from django.db import models
 
 from cart.models import Cart
-from users.models import User, Favorite
+from users.models import Favorite, User
 
 PRODUCT_AND_SHOP_STATUS = (
         ('Accept', 'Одобрено'),

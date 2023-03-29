@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.db.models import Avg, BooleanField, Case, Count, When
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 
@@ -13,7 +13,7 @@ from reviews.models import Review
 from shop.models import Product, Shop
 from shop.views import get_products
 
-from .forms import CreationForm, ChangeProfileForm
+from .forms import ChangeProfileForm, CreationForm
 from .models import Favorite, User
 
 

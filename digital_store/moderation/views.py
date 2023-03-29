@@ -1,15 +1,15 @@
 from functools import wraps
 
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
-from django.http import JsonResponse
 
 from core.actions import is_ajax
 from core.pagination import get_context_paginator
 from digital_store.settings import STAFF_ROLES
-from users.models import User
 from shop.models import Product, Shop
+from users.models import User
 
 from .forms import RejectForm
 from .models import AcceptRejectList
