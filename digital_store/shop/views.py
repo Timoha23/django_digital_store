@@ -120,7 +120,9 @@ def shop(request, shop_id):
     """
 
     shop = get_object_or_404(
-        Shop.objects.annotate(avg_rating=Avg('products__review__rating')),
+        (Shop.objects
+         .annotate(avg_rating=Avg('products__review__rating'))
+         .select_related('owner')),
         id=shop_id)
 
     # проверка статуса магазина
