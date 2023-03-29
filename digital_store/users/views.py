@@ -88,13 +88,13 @@ def user_profile(request, username):
                        .aggregate(Count('count_items'))
                        )
 
-        context = {
+        context.update({
             'count_shops': count_shops,
             'count_products': count_products,
             'rating': rating,
             'count_sales': count_sales.get('count_items__count'),
             'percent_rating': _get_percent_rating(user),
-        }
+        })
     return render(request, context=context, template_name='users/profile.html')
 
 
@@ -172,7 +172,7 @@ def change_favorite(request):
         }
 
         cache.clear()
-        return JsonResponse(context, safe=False)
+        return JsonResponse(context, status=200)
     return JsonResponse({"success": False}, status=400)
 
 
