@@ -18,10 +18,18 @@
             {% endif %}
             <h5 class="my-3">{{ user.username }}</h5>
             <div class="d-flex justify-content-center mb-2">
-              {% comment %} {% if request.user.role == 'admin' and request.user != user %} {% endcomment %}
-              {% if request.user == user %}
-              <a href="{% url 'users:edit_profile' %}" class="btn btn-outline-primary ms-1">Редактировать</a>
-              {% endif %}
+              {% if request.user.role == 'admin' and request.user != user and user.role != 'admin' %}
+              <form action="{% url 'moderation:change_moderator_status' %}" method="POST" class="make-remove-form" id="{{ user.id }}">  
+              {% csrf_token %}
+                  {% if user.role == 'moderator' %}
+                    <button type="submit" class="btn btn-outline-danger">Убрать из модераторов</button>
+                  {% else %}
+                    <button type="submit" class="btn btn-outline-success">Сделать модератором</button>
+                  {% endif %}
+                {% elif request.user == user %}
+                  <a href="{% url 'users:edit_profile' %}" class="btn btn-outline-primary ms-1">Редактировать</a>
+                {% endif %}
+              </form>
             </div>
           </div>
         </div>
@@ -74,9 +82,6 @@
                 <div class="container">
                   <div class="row">
                     <div class="col-8">
-                      {% if rating %}
-                        <a href="" class="custom-link-profile">
-                      {% endif %}
                       <i class="fa-solid fa-star-half-stroke" style="color: #403f3f;"> Рейтинг продавца: </i>
                       </a>
                     </div>
