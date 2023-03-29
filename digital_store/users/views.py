@@ -11,6 +11,7 @@ from core.actions import is_ajax
 from core.pagination import get_context_paginator
 from reviews.models import Review
 from shop.models import Product, Shop
+from shop.views import get_products
 
 from .forms import CreationForm, ChangeProfileForm
 from .models import Favorite, User
@@ -71,9 +72,13 @@ def user_profile(request, username):
         'user': user,
         }
     if Shop.objects.filter(owner=user).exists():
-        count_shops = Shop.objects.filter(owner=user).count()
+        count_shops = Shop.objects.filter(owner=user, status='Accept').count()
         count_products = Product.objects.filter(
-            shop__owner=user).count()
+            shop__owner=user,
+            status='Accept',
+            is_available=True,
+            visibile=True
+        ).count()
 
         rating = (Review.objects
                   .filter(product__shop__owner=user)
@@ -199,10 +204,12 @@ def get_user_product_list(request, username):
     """
 
     if request.user.username == username:
-        products = Product.objects.filter(shop__owner__username=username)
+        products = get_products(request, all=True)
+        products = products.filter(shop__owner__username=username)
     else:
-        products = Product.objects.filter(shop__owner__username=username,
-                                          visibile=True, status='Accept')
+        products = get_products(request)
+        products = products.filter(shop__owner__username=username,
+                                   visibile=True, status='Accept')
     context = {}
     context.update(get_context_paginator(products, request, is_products=True))
     return render(request, context=context,
