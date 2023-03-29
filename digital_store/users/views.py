@@ -16,7 +16,7 @@ from .forms import CreationForm
 from .models import Favorite, User
 
 
-def get_percent_rating(user) -> dict:
+def _get_percent_rating(user) -> dict:
     """
     Получение процента по шкале рейтинга
     """
@@ -29,9 +29,18 @@ def get_percent_rating(user) -> dict:
         5: 0,
     }
 
-    stars_percent = stars_dict.copy()
+    stars_percent = {
+        1: (0, 0),
+        2: (0, 0),
+        3: (0, 0),
+        4: (0, 0),
+        5: (0, 0),
+    }
 
     reviews = Review.objects.filter(product__shop__owner=user).values('rating')
+
+    if reviews.count() == 0:
+        return stars_percent
 
     # заполняем словарь для подсчета каждой оценки
     for star in reviews:
@@ -52,7 +61,6 @@ class SignUp(CreateView):
     template_name = 'users/signup.html'
 
 
-@login_required
 def user_profile(request, username):
     """
     Профиль пользователя
@@ -84,7 +92,7 @@ def user_profile(request, username):
             'count_products': count_products,
             'rating': rating,
             'count_sales': count_sales.get('count_items__count'),
-            'percent_rating': get_percent_rating(user),
+            'percent_rating': _get_percent_rating(user),
         }
     return render(request, context=context, template_name='users/profile.html')
 
