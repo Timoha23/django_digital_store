@@ -173,3 +173,36 @@ def change_favorite(request):
         cache.clear()
         return JsonResponse(context, safe=False)
     return JsonResponse({"success": False}, status=400)
+
+
+def get_user_shop_list(request, username):
+    """
+    Получаем все магазины данного юзера
+    """
+
+    if request.user.username == username:
+        shops = Shop.objects.filter(owner__username=username)
+    else:
+        shops = Shop.objects.filter(owner__username=username,
+                                    status='Accept')
+
+    context = {}
+    context.update(get_context_paginator(shops, request))
+    return render(request, context=context,
+                  template_name='shop/shop_list.html')
+
+
+def get_user_product_list(request, username):
+    """
+    Получаем все товары(продукты) связанные с данным юзером
+    """
+
+    if request.user.username == username:
+        products = Product.objects.filter(shop__owner__username=username)
+    else:
+        products = Product.objects.filter(shop__owner__username=username,
+                                          visibile=True, status='Accept')
+    context = {}
+    context.update(get_context_paginator(products, request, is_products=True))
+    return render(request, context=context,
+                  template_name='shop/product_list.html')
