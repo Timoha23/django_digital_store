@@ -6,6 +6,7 @@ $(document).ready(function() {
     addToCart()
     delFromCart()
     showBoughtItems()
+    makeRemoveModeratorStatus()
 }); 
 
 function addCountItemsCart() {
@@ -207,5 +208,38 @@ function showBoughtItems() {
                 $(`.items-${obj_id}`).attr('hidden', true)
             }
         });
+    });
+}
+
+function makeRemoveModeratorStatus() {
+    $('.make-remove-form').each((index, el) => {
+        $(el).on('submit', (e) => {
+            e.preventDefault();
+            const user_id = $(el).attr('id')
+            const url = $(el).attr('action')
+
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: {
+                    'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+                    'user_id': user_id,
+                },
+
+                success: function(response) {
+                    const btn = $(el).find('.btn')
+                    if (response.is_moderator) {
+                        btn.removeClass('btn-outline-success').addClass('btn-outline-danger')
+                        btn.text('Убрать из модераторов')
+                    } else {
+                        btn.removeClass('btn-outline-danger').addClass('btn-outline-success')
+                        btn.text('Сделать модератором')
+                    }
+                },
+                error: function(response) {
+                    console.log('bad')
+                }
+            })
+        })
     });
 }
