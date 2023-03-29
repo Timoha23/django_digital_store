@@ -52,6 +52,7 @@ class SignUp(CreateView):
     template_name = 'users/signup.html'
 
 
+@login_required
 def user_profile(request, username):
     """
     Профиль пользователя
