@@ -11,6 +11,7 @@
   <div class="card-body">
     <h3 class="card-title">{{ shop.name }}</h3>
     <hr class="hr-dashed-gradient"></hr>
+    <p class="card-text">Владелец: <a href="{% url 'users:user_profile' shop.owner.username %}" class="custom-link">{{ shop.owner.username }}</a></p>
     {% if shop.avg_rating %}
       <p>Рейтинг магазина: {{ shop.avg_rating|floatformat:"0" }}/5⭐</p>
     {% else %}
