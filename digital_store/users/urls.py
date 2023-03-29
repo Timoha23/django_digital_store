@@ -14,5 +14,8 @@ urlpatterns = [
     path('favorites/', views.get_favorite_list, name='favorites'),
     path('change_favorite/', views.change_favorite, name='change_favorite'),
     path('profile/<slug:username>/', views.user_profile, name='user_profile'),
-    path('orders/', views.order_list, name='orders')
+    path('orders/', views.order_list, name='orders'),
+    path('shops/<slug:username>/', views.get_user_shop_list, name='shops'),
+    path('products/<slug:username>', views.get_user_product_list,
+         name='products'),
 ]
