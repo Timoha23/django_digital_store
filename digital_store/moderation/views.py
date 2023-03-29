@@ -3,9 +3,12 @@ from functools import wraps
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
+from django.http import JsonResponse
 
+from core.actions import is_ajax
 from core.pagination import get_context_paginator
 from digital_store.settings import STAFF_ROLES
+from users.models import User
 from shop.models import Product, Shop
 
 from .forms import RejectForm
@@ -21,6 +24,16 @@ def moderator_required(func):
     def wrapper(request, *args, **kwargs):
         if request.user.is_authenticated:
             if request.user.role in STAFF_ROLES:
+                return func(request, *args, **kwargs)
+        return redirect('shop:index')
+    return wrapper
+
+
+def admin_required(func):
+    @wraps(func)
+    def wrapper(request, *args, **kwargs):
+        if request.user.is_authenticated:
+            if request.user.role == 'admin':
                 return func(request, *args, **kwargs)
         return redirect('shop:index')
     return wrapper
@@ -249,3 +262,28 @@ def moderation_history(request):
         context=context,
         template_name='moderation/moderation_history.html'
     )
+
+
+@admin_required
+def change_moderator_status(request):
+    """
+    Изменение статуса пользователя на модератора
+    """
+
+    if is_ajax(request=request) and request.method == 'POST':
+        data = request.POST
+        user = get_object_or_404(User, pk=data['user_id'])
+        if user.role == 'moderator':
+            user.role = 'user'
+            user.save()
+            is_moderator = False
+        else:
+            user.role = 'moderator'
+            user.save()
+            is_moderator = True
+
+        context = {
+            'is_moderator': is_moderator,
+        }
+        return JsonResponse(context, status=200)
+    return JsonResponse({"success": False}, status=400)
