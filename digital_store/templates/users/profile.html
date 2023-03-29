@@ -18,8 +18,9 @@
             {% endif %}
             <h5 class="my-3">{{ user.username }}</h5>
             <div class="d-flex justify-content-center mb-2">
-              {% if request.user.role == 'admin' and request.user != user %}
-              <button type="button" class="btn btn-outline-primary ms-1">Перейти в магазин</button>
+              {% comment %} {% if request.user.role == 'admin' and request.user != user %} {% endcomment %}
+              {% if request.user == user %}
+              <a href="{% url 'users:edit_profile' %}" class="btn btn-outline-primary ms-1">Редактировать</a>
               {% endif %}
             </div>
           </div>
