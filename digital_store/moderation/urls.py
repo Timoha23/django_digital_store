@@ -15,4 +15,6 @@ urlpatterns = [
           name='reject_product'),
      path('moderation_history/', views.moderation_history,
           name='moderation_history'),
+     path('change_moderator_status/', views.change_moderator_status,
+          name='change_moderator_status'),
 ]
