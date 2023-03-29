@@ -221,4 +221,5 @@ def edit_profile(request):
     context = {
         'form': form,
     }
-    return render(request, context=context, template_name='users/edit_profile.html')
+    return render(request, context=context,
+                  template_name='users/edit_profile.html')
