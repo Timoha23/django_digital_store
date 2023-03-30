@@ -6,7 +6,7 @@
   {% if user_have_shop %}
     <li><a href="{% url 'users:shops' request.user.username %}" class="nav-link px-2 {% if view_name == 'shop:user_shops' %}link-secondary{% else %}link-dark{% endif %}">Мои магазины</a></li>
   {% else %}
-    <li><a href="{% url 'users:shops' request.user.username %}" class="nav-link px-2 {% if view_name == 'shop:user_shops' %}link-secondary{% else %}link-dark{% endif %}">Открыть магазин</a></li>
+    <li><a href="{% url 'shop:create_shop' %}" class="nav-link px-2 {% if view_name == 'shop:create_shop' %}link-secondary{% else %}link-dark{% endif %}">Открыть магазин</a></li>
   {% endif %}
   {% endwith %}
 </ul>
