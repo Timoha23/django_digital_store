@@ -30,9 +30,8 @@ def get_products(request):
                 .order_by('-is_available', '-created_date')
                 .annotate(avg_rating=Avg('review__rating'))
                 )
-
     if request.user.is_authenticated:
-        products.annotate(is_favorite=Case(
+        products = products.annotate(is_favorite=Case(
                             When(favorite__user=request.user,
                                  then=True),
                             default=False,
