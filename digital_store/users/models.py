@@ -5,7 +5,6 @@ from django.db import models
 class User(AbstractUser):
     USER_ROLE = (
         ('user', 'Пользователь'),
-        ('seller', 'Продавец'),
         ('moderator', 'Модератор'),
         ('admin', 'Администратор'),
     )
@@ -23,10 +22,6 @@ class User(AbstractUser):
         verbose_name='Изображение профиля',
         blank=True,
     )
-
-    @property
-    def is_seller(self):
-        return self.role == 'seller'
 
     @property
     def is_moderator(self):
