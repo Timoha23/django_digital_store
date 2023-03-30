@@ -165,22 +165,34 @@ def product(request, product_id):
     Страница продукта
     """
 
-    product = get_object_or_404(
-        Product.objects
-        .select_related('shop__owner')
-        .annotate(
-            avg_rating=Avg('review__rating'),
-            is_favorite=Case(
-                When(favorite__user=request.user,
-                     then=True),
-                default=False,
-                output_field=BooleanField()),
-            in_cart=Case(
-                When(cart__user=request.user,
-                     then=True),
-                default=False,
-                output_field=BooleanField())),
-        pk=product_id)
+    can_review = False
+
+    if Product.objects.filter(pk=product_id).exists():
+
+        product = (Product.objects
+                   .filter(pk=product_id)
+                   .select_related('shop__owner')
+                   .annotate(
+                        avg_rating=Avg('review__rating'),
+                    ))
+        if request.user.is_authenticated:
+            product = product.annotate(is_favorite=Case(
+                    When(favorite__user=request.user,
+                         then=True),
+                    default=False,
+                    output_field=BooleanField()),
+                in_cart=Case(
+                    When(cart__user=request.user,
+                         then=True),
+                    default=False,
+                    output_field=BooleanField())).first()
+            can_review = OrderHistory.objects.filter(
+                product=product,
+                user=request.user,
+                review=False
+            )
+    else:
+        raise Http404
 
     shop = Shop.objects.get(products=product_id)
     items = Item.objects.filter(product=product, status='sale')
@@ -196,13 +208,6 @@ def product(request, product_id):
                 raise Http404
         else:
             raise Http404
-
-    if request.user.is_authenticated:
-        can_review = OrderHistory.objects.filter(
-            product=product,
-            user=request.user,
-            review=False
-        )
 
     context = {
         'shop': shop,
