@@ -13,7 +13,7 @@
         {% if user_have_shop %}
           <li><a href="{% url 'users:shops' request.user.username %}" class="nav-link px-2 {% if view_name == 'users:shops' and request.resolver_match.kwargs.username == request.user.username %}link-secondary{% else %}link-dark{% endif %}">Мои магазины</a></li>
         {% else %}
-          <li><a href="{% url 'shop:user_shops' %}" class="nav-link px-2 {% if view_name == 'shop:user_shops' %}link-secondary{% else %}link-dark{% endif %}">Открыть магазин</a></li>
+          <li><a href="{% url 'shop:create_shop' %}" class="nav-link px-2 {% if view_name == 'shop:create_shop' %}link-secondary{% else %}link-dark{% endif %}">Открыть магазин</a></li>
         {% endif %}
         {% if is_staff %}
         <div class="dropdown">
@@ -52,30 +52,9 @@
             <li><a class="dropdown-item" href="{% url 'users:orders' %}">Список покупок</a></li>
             <li><a class="dropdown-item" href="{% url 'cart:cart' %}">Корзина</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#">Выйти</a></li>
+            <li><a class="dropdown-item" href="{% url 'users:logout' %}">Выйти</a></li>
           </ul>
       </div>
-      {% comment %} <div class="dropdown text-end" style="margin-left:15px">
-        <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle-notify" id="dropdownNotify" data-bs-toggle="dropdown" aria-expanded="false">
-          <i class="fa-solid fa-bell"></i>
-        </a>
-        <ul class="dropdown-menu text-small" style="background-color: #faf1bd;"aria-labelledby="dropdownNotify">
-          <li>
-            <div class="row">
-              <div class="col-9">
-                <p class="notify">item_1 asdasdsa das das das das dasdasddsa sa das</p>
-              </div>
-              <div class="col-3">
-                <form action="{% url 'users:delete_notification' %}" method="POST" class="delete-notification-form" id="{{ notify.id }}">
-                  <>
-                </form>
-              </div>
-            </div>
-          </li>
-          <li><hr class="dropdown-divider"></li>
-          <li><p class="notify">item_2</p></li>
-        </ul>
-      </div> {% endcomment %}
     {% else %}
       <div class="col-md-3 text-end">
         <a href="{% url "users:login" %}" class="btn btn-outline-primary me-2">Войти</a>
