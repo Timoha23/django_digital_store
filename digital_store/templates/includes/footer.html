@@ -4,9 +4,9 @@
   <li><a href="{% url 'shop:shop_list' %}" class="nav-link px-2 {% if view_name == 'shop:shop_list' %}link-secondary{% else %}link-dark{% endif %}">Магазины</a></li>
   <li><a href="{% url 'shop:product_list' %}" class="nav-link px-2 {% if view_name == 'shop:product_list' %}link-secondary{% else %}link-dark{% endif %}">Товары</a></li>
   {% if user_have_shop %}
-    <li><a href="{% url 'shop:user_shops' %}" class="nav-link px-2 {% if view_name == 'shop:user_shops' %}link-secondary{% else %}link-dark{% endif %}">Мои магазины</a></li>
+    <li><a href="{% url 'users:shops' request.user.username %}" class="nav-link px-2 {% if view_name == 'shop:user_shops' %}link-secondary{% else %}link-dark{% endif %}">Мои магазины</a></li>
   {% else %}
-    <li><a href="{% url 'shop:user_shops' %}" class="nav-link px-2 {% if view_name == 'shop:user_shops' %}link-secondary{% else %}link-dark{% endif %}">Открыть магазин</a></li>
+    <li><a href="{% url 'users:shops' request.user.username %}" class="nav-link px-2 {% if view_name == 'shop:user_shops' %}link-secondary{% else %}link-dark{% endif %}">Открыть магазин</a></li>
   {% endif %}
   {% endwith %}
 </ul>
