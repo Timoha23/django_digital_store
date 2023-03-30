@@ -19,20 +19,18 @@ from .forms import ItemForm, ProductForm, ShopForm
 from .models import Category, Item, Product, Shop
 
 
-def get_products(request, shop=None, category_slug=None, query=None,
-                 all=False):
+def get_products(request):
     """
-    Получаем список продуктов
-    all - ключ на получение всех продуктов юзера
+    Получение продуктов без фильтров
     """
-
     products = (Product.objects
                 .filter()
                 .select_related('shop__owner')
                 .prefetch_related('category', 'review')
-                .order_by('-created_date')
+                .order_by('-is_available', '-created_date')
                 .annotate(avg_rating=Avg('review__rating'))
                 )
+
     if request.user.is_authenticated:
         products.annotate(is_favorite=Case(
                             When(favorite__user=request.user,
@@ -45,25 +43,6 @@ def get_products(request, shop=None, category_slug=None, query=None,
                               default=False,
                               output_field=BooleanField(),
                       ))
-    if shop:
-        if not request.user.is_authenticated or request.user != shop.owner:
-            products = products.filter(
-                status='Accept',
-                visibile=True,
-                is_available=True
-            )
-        products = products.filter(shop=shop)
-    elif all is False:
-        products = products.filter(
-                status='Accept',
-                visibile=True,
-                is_available=True
-            )
-
-    if category_slug:
-        products = products.filter(category__slug=category_slug)
-    if query:
-        products = products.filter(name__icontains=query)
 
     return products
 
@@ -104,7 +83,9 @@ def index(request):
     Главная страница проекта
     """
 
-    products = get_products(request)
+    products = (get_products(request)
+                .filter(status='Accept', visibile=True)
+                )
 
     context = {
         'products': products,
@@ -137,7 +118,14 @@ def shop(request, shop_id):
         else:
             raise Http404
 
-    products = get_products(request, shop)
+    products = get_products(request)
+    if not request.user.is_authenticated or request.user != shop.owner:
+        products = products.filter(
+                status='Accept',
+                visibile=True,
+                is_available=True
+            )
+    products = products.filter(shop=shop)
 
     context = {
         'shop': shop,
@@ -242,7 +230,9 @@ def product_list(request):
     Страница со всеми продуктами
     """
 
-    products = get_products(request)
+    products = (get_products(request)
+                .filter(status='Accept', visibile=True)
+                )
 
     context = {}
     context.update(get_context_paginator(products, request, is_products=True))
@@ -304,30 +294,6 @@ def edit_shop(request, shop_id):
         request,
         context=context,
         template_name='shop/create_shop.html',
-    )
-
-
-@login_required
-def user_shops(request):
-    """
-    Просмотр магазинов для владельца
-    """
-
-    shops = (Shop.objects.select_related('owner')
-             .filter(owner=request.user)
-             .annotate(avg_rating=Avg('products__review__rating')))
-
-    context = {
-        'shops': shops,
-        'shops_exists': shops.exists(),
-
-    }
-
-    context.update(get_context_paginator(shops, request))
-    return render(
-        request,
-        context=context,
-        template_name='shop/user_shops.html',
     )
 
 
@@ -482,7 +448,9 @@ def search(request):
 
     query = request.GET.get('query')
 
-    products = get_products(request, query=query)
+    products = get_products(request).filter(name__icontains=query,
+                                            status='Accept',
+                                            visibile=True,)
 
     context = {
         'query': query,
@@ -503,7 +471,9 @@ def category(request, slug):
         messages.error(request, f'Категории {slug} не существует')
         return redirect('shop:index')
 
-    products = get_products(request, category_slug=slug)
+    products = get_products(request).filter(category__slug=slug,
+                                            status='Accept',
+                                            visibile=True,)
 
     context = {
         'slug': slug,
