@@ -185,12 +185,15 @@ def get_user_shop_list(request, username):
     """
     Получаем все магазины данного юзера
     """
-
-    if request.user.username == username:
-        shops = Shop.objects.filter(owner__username=username)
+    user = get_object_or_404(User, username=username)
+    if request.user == user:
+        shops = (Shop.objects
+                 .filter(owner=user)
+                 .select_related('owner')
+                 )
     else:
-        shops = Shop.objects.filter(owner__username=username,
-                                    status='Accept')
+        shops = Shop.objects.filter(owner=user,
+                                    status='Accept').select_related('owner')
 
     context = {}
     context.update(get_context_paginator(shops, request))
@@ -202,13 +205,13 @@ def get_user_product_list(request, username):
     """
     Получаем все товары(продукты) связанные с данным юзером
     """
-
-    if request.user.username == username:
-        products = get_products(request, all=True)
-        products = products.filter(shop__owner__username=username)
+    user = get_object_or_404(User, username=username)
+    if request.user == user:
+        products = get_products(request)
+        products = products.filter(shop__owner=user)
     else:
         products = get_products(request)
-        products = products.filter(shop__owner__username=username,
+        products = products.filter(shop__owner=user,
                                    visibile=True, status='Accept')
     context = {}
     context.update(get_context_paginator(products, request, is_products=True))
