@@ -101,5 +101,6 @@
     SECRET_KEY=YOUR_SECRET_KEY_DJANGO_PROJECT
 
 
-Небольшая демонстрация добавления товара в корзину и в избранное:
+### Небольшая демонстрация добавления товара в корзину и в избранное:
+---
 ![gif](https://user-images.githubusercontent.com/103051349/229347295-b8e85f41-adcd-490b-b6b0-6d8a25f30ca0.gif)
