@@ -185,15 +185,15 @@ def product(request, product_id):
                     When(cart__user=request.user,
                          then=True),
                     default=False,
-                    output_field=BooleanField())).first()
+                    output_field=BooleanField()))
             can_review = OrderHistory.objects.filter(
-                product=product,
+                product=product.first(),
                 user=request.user,
                 review=False
             )
     else:
         raise Http404
-
+    product = product.first()
     shop = Shop.objects.get(products=product_id)
     items = Item.objects.filter(product=product, status='sale')
     reviews = (Review.objects.filter(product=product)
