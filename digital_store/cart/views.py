@@ -43,6 +43,8 @@ def add_to_cart(request):
     """
 
     if is_ajax(request=request) and request.method == 'POST':
+        # флаг для аякса, на проверку находится ли добавляемый товар в корзине
+        in_cart = False
         # проверка на то, что корзина юзера не переполнена
         if Cart.objects.filter(user=request.user).count() >= MAX_CART_SIZE:
             context = {
@@ -65,6 +67,7 @@ def add_to_cart(request):
         # наличии
 
         if product_in_user_cart:
+            in_cart = True
             if len_sale_products <= product_in_user_cart.count_items:
                 return JsonResponse({"success": False}, status=400)
 
@@ -83,6 +86,7 @@ def add_to_cart(request):
             product_in_user_cart.save()
         context = {
             'product_name': product.name,
+            'in_cart': in_cart,
         }
         cache.clear()
         return JsonResponse(context, status=200)
