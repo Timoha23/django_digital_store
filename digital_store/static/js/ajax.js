@@ -138,6 +138,19 @@ function addToCart() {
                         icon: 'success',
                         confirmButtonText: 'Закрыть'
                       });
+                    if(response.in_cart === false) {
+                        const count = Number($('.count-cart-items').text())
+                        let next_number = count + 1
+                        if(count === 0){
+                            $('.a-cart').append('<span class="position-absolute translate-middle badge rounded-pill bg-danger count-cart-items">1</span>')
+                        } else {
+                            console.log(count)
+                            console.log(response.in_cart)
+                            $('.count-cart-items').text(next_number)
+                        }
+                    } else {
+                        // pass
+                    }
                 },
                 error: function(response) {
                     if (response.responseJSON.error == 'max_cart_size') {
@@ -189,6 +202,12 @@ function delFromCart() {
                         icon: 'success',
                         confirmButtonText: 'Закрыть'
                       });
+                    const count = Number($('.count-cart-items').text())
+                    if(count === 1) {
+                        $('.count-cart-items').attr('hidden', true)
+                    } else {
+                        $('.count-cart-items').text(count-1)
+                    } 
                 },
                 error: function(response){
                     console.log('error')
